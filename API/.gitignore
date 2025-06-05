@@ -132,3 +132,6 @@ Thumbs.db
 # Application specific
 uploads/
 public/uploads/
+
+#
+.env
