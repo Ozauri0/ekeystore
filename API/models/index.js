@@ -1,19 +1,19 @@
 const User = require('./User');
-const Producto = require('./Producto');
-const Carrito = require('./Carrito');
-const Orden = require('./Orden');
-const DetalleOrden = require('./DetalleOrden');
+const Product = require('./Product');
+const Cart = require('./Cart');
+const Order = require('./Order');
+const OrderDetail = require('./OrderDetail');
 const Key = require('./Key');
-const Pago = require('./Pago');
-const Recomendacion = require('./Recomendacion');
+const Payment = require('./Payment');
+const Recommendation = require('./Recomendation');
 
 module.exports = {
   User,
-  Producto,
-  Carrito,
-  Orden,
-  DetalleOrden,
+  Product,
+  Cart,
+  Order,
+  OrderDetail,
   Key,
-  Pago,
-  Recomendacion,
+  Payment,
+  Recommendation,
 };
