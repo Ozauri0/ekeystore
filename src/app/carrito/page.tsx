@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import Header from "../../components/header";
+import Footer from "../../components/footer";
 
 interface CartItem {
   id: number;
@@ -80,46 +82,13 @@ export default function CartPage() {
       setAppliedDiscount(0);
     }
   };
-
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const discountAmount = (subtotal * appliedDiscount) / 100;
   const total = subtotal - discountAmount;
 
   return (
     <div className="bg-gray-950 text-white min-h-screen">
-      {/* Header */}
-      <header className="bg-gray-900/80 backdrop-blur border-b border-gray-800 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-8">
-              <a href="/" className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3l14 9-14 9V3z"/>
-                  </svg>
-                </div>
-                <span className="text-2xl font-bold gradient-text">E-keystore</span>
-              </a>
-              <nav className="hidden md:flex space-x-8">
-                <a href="/" className="text-gray-300 hover:text-purple-400 transition-colors font-medium">Inicio</a>
-                <a href="#" className="text-gray-300 hover:text-purple-400 transition-colors font-medium">Windows</a>
-                <a href="#" className="text-gray-300 hover:text-purple-400 transition-colors font-medium">Office</a>
-                <a href="#" className="text-gray-300 hover:text-purple-400 transition-colors font-medium">Games</a>
-                <a href="#" className="text-gray-300 hover:text-purple-400 transition-colors font-medium">Antivirus</a>
-              </nav>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <button className="border border-purple-500/30 bg-gray-800/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all px-4 py-2 rounded-lg flex items-center">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 11-4 0v-6m4 0V9a2 2 0 10-4 0v4.01"/>
-                </svg>
-                Carrito ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>      {/* Main Content */}
+      <Header cartCount={cartItems.reduce((sum, item) => sum + item.quantity, 0)} />{/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 min-h-[calc(100vh-4rem)]">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-4">Carrito de Compras</h1>
@@ -298,56 +267,9 @@ export default function CartPage() {
               </div>
             </div>
           </div>
-        )}
-      </main>      {/* Footer */}
-      <footer className="bg-gray-900 border-t border-gray-800 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3l14 9-14 9V3z"/>
-                  </svg>
-                </div>
-                <span className="text-2xl font-bold gradient-text">E-keystore</span>
-              </div>
-              <p className="text-gray-400 leading-relaxed">
-                Tu tienda de confianza para licencias digitales originales al mejor precio del mercado.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4 text-white">Productos</h3>
-              <ul className="space-y-3 text-gray-400">
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Windows</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Microsoft Office</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Steam Games</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Antivirus</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4 text-white">Soporte</h3>
-              <ul className="space-y-3 text-gray-400">
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Centro de ayuda</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Contacto</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Garantías</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition-colors">FAQ</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-4 text-white">Legal</h3>
-              <ul className="space-y-3 text-gray-400">
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Términos de uso</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Política de privacidad</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition-colors">Política de reembolso</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 E-keystore. Todos los derechos reservados.</p>
-          </div>
-        </div>
-      </footer>
+        )}      </main>
+
+      <Footer />
     </div>
   );
 }
