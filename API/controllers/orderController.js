@@ -6,9 +6,18 @@ exports.createOrder = async (req, res) => {
   try {
     const { items, productId, cantidad, stripeSessionId, licenses, buyerEmail } = req.body;
 
-    // Validación básica
-    if (!items || !productId || !cantidad || !licenses) {
-      return res.status(400).json({ message: 'Faltan datos requeridos para crear la orden' });
+    // Validación básica con mensaje específico
+    if (!items) {
+      return res.status(400).json({ message: 'Falta el campo: items' });
+    }
+    if (!productId) {
+      return res.status(400).json({ message: 'Falta el campo: productId' });
+    }
+    if (!cantidad) {
+      return res.status(400).json({ message: 'Falta el campo: cantidad' });
+    }
+    if (!licenses) {
+      return res.status(400).json({ message: 'Falta el campo: licenses' });
     }
 
     // Buscar keys disponibles
