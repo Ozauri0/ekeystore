@@ -5,6 +5,7 @@ const keySchema = new mongoose.Schema({
   orden: { type: mongoose.Schema.Types.ObjectId, ref: 'Orden' },
   key: { type: String, required: true, unique: true },
   status: { type: String, enum: ['available', 'sold'], default: 'available' },
+  price: { type: Number, required: true },
   fecha_compra: { type: Date },
   enviado: { type: Boolean, default: false },
   fecha_envio: { type: Date },

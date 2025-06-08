@@ -6,8 +6,29 @@ const connectDB = require('./config/database');
 
 // Importar rutas
 const userRoutes = require('./routes/users');
-
+const orderRoutes = require('./routes/orders');
+const authRoutes = require('./routes/auth');
+const keyRoutes = require('./routes/keys');
 const app = express();
+
+// Documentación Swagger
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
+
+const swaggerSpec = swaggerJsdoc({
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'EKeyStore API',
+      version: '1.0.0',
+      description: 'Documentación de la API de E-Key Store',
+    },
+    servers: [{ url: 'http://localhost:3001' }],
+  },
+  apis: ['./routes/*.js'],
+});
+
+
 
 // Conectar a la base de datos
 connectDB();
@@ -19,7 +40,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // Rutas API
 app.use('/api/users', userRoutes);
-
+app.use('/api/orders', orderRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/keys', keyRoutes);
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Rutas base
 app.get('/', (req, res) => {
   res.json({
