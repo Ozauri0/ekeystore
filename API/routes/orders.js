@@ -11,10 +11,10 @@ const {
 
 
 /**
- * * @swagger
- * * tags:
- * *   name: Orders
- * *   description: Gestión de órdenes
+ * @swagger
+ * tags:
+ *   name: Orders
+ *   description: Gestión de órdenes de productos
  */
 
 
