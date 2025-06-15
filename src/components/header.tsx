@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
 interface HeaderProps {
@@ -13,6 +13,8 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [dropdownTimeout, setDropdownTimeout] = useState<NodeJS.Timeout | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Verificar si el usuario está logueado al cargar el componente
   useEffect(() => {
@@ -23,6 +25,24 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
     }
   }, []);
 
+  // Cerrar dropdown al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowUserDropdown(false);
+        if (dropdownTimeout) {
+          clearTimeout(dropdownTimeout);
+          setDropdownTimeout(null);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownTimeout]);
+
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
   };
@@ -31,11 +51,37 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const handleMouseEnterDropdown = () => {
+    if (dropdownTimeout) {
+      clearTimeout(dropdownTimeout);
+      setDropdownTimeout(null);
+    }
+    setShowUserDropdown(true);
+  };
+
+  const handleMouseLeaveDropdown = () => {
+    const timeout = setTimeout(() => {
+      setShowUserDropdown(false);
+    }, 150); // 150ms delay antes de cerrar
+    setDropdownTimeout(timeout);
+  };
+  const handleDropdownClick = () => {
+    setShowUserDropdown(false);
+    if (dropdownTimeout) {
+      clearTimeout(dropdownTimeout);
+      setDropdownTimeout(null);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
     setUserName("");
     setShowUserDropdown(false);
+    if (dropdownTimeout) {
+      clearTimeout(dropdownTimeout);
+      setDropdownTimeout(null);
+    }
     window.location.href = "/";
   };
 
@@ -95,13 +141,12 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
                   </svg>
                 )}
-              </button>
-
-              {/* User dropdown */}
+              </button>              {/* User dropdown */}
               <div 
+                ref={dropdownRef}
                 className="relative"
-                onMouseEnter={() => setShowUserDropdown(true)}
-                onMouseLeave={() => setShowUserDropdown(false)}
+                onMouseEnter={handleMouseEnterDropdown}
+                onMouseLeave={handleMouseLeaveDropdown}
               >
                 <button className="border border-purple-500/30 bg-gray-800/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all p-2 rounded-lg flex items-center space-x-2">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,16 +155,18 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
                   {isLoggedIn && (
                     <span className="hidden sm:inline text-sm font-medium">{userName}</span>
                   )}
-                </button>
-
-                {/* Dropdown menu */}
+                </button>                {/* Dropdown menu */}
                 {showUserDropdown && (
-                  <div className="absolute right-0 mt-2 w-48 bg-gray-800/95 backdrop-blur border border-gray-700 rounded-xl shadow-xl py-2 z-50">
-                    {!isLoggedIn ? (
+                  <div 
+                    className="absolute right-0 mt-1 w-48 bg-gray-800/95 backdrop-blur border border-gray-700 rounded-xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                    onMouseEnter={handleMouseEnterDropdown}
+                    onMouseLeave={handleMouseLeaveDropdown}
+                  >{!isLoggedIn ? (
                       <>
                         <Link 
                           href="/login" 
                           className="block px-4 py-2 text-gray-300 hover:bg-purple-600/20 hover:text-purple-300 transition-colors"
+                          onClick={handleDropdownClick}
                         >
                           <div className="flex items-center space-x-2">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,6 +178,7 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
                         <Link 
                           href="/registro" 
                           className="block px-4 py-2 text-gray-300 hover:bg-purple-600/20 hover:text-purple-300 transition-colors"
+                          onClick={handleDropdownClick}
                         >
                           <div className="flex items-center space-x-2">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,6 +193,7 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
                         <a 
                           href="#" 
                           className="block px-4 py-2 text-gray-300 hover:bg-purple-600/20 hover:text-purple-300 transition-colors"
+                          onClick={handleDropdownClick}
                         >
                           <div className="flex items-center space-x-2">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,6 +205,7 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
                         <a 
                           href="#" 
                           className="block px-4 py-2 text-gray-300 hover:bg-purple-600/20 hover:text-purple-300 transition-colors"
+                          onClick={handleDropdownClick}
                         >
                           <div className="flex items-center space-x-2">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
