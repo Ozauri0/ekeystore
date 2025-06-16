@@ -12,6 +12,7 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
+  const [userRole, setUserRole] = useState("");
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [dropdownTimeout, setDropdownTimeout] = useState<NodeJS.Timeout | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -20,10 +21,70 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      setIsLoggedIn(true);
-      setUserName("Christian");
+      try {
+        // Decodificar el JWT para obtener la información real del usuario
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        
+        const decodedToken = JSON.parse(jsonPayload);
+        
+        // Verificar que el token no haya expirado
+        const currentTime = Date.now() / 1000;
+        if (decodedToken.exp && decodedToken.exp < currentTime) {
+          // Token expirado
+          localStorage.removeItem("token");
+          setIsLoggedIn(false);
+          setUserName("");
+          setUserRole("");
+          return;
+        }
+        
+        setIsLoggedIn(true);
+        setUserRole(decodedToken.role || "user"); // Obtener rol real del token
+        
+        // Si hay información del nombre en el token, usarla; si no, obtenerla de la API
+        if (decodedToken.nombre) {
+          setUserName(decodedToken.nombre);
+        } else {
+          // Obtener el nombre del usuario desde la API usando el userId
+          fetchUserInfo(decodedToken.userId, token);
+        }
+        
+      } catch (error) {
+        console.error('Error al decodificar el token:', error);
+        // Si hay error al decodificar, limpiar la sesión
+        localStorage.removeItem("token");
+        setIsLoggedIn(false);
+        setUserName("");
+        setUserRole("");
+      }
     }
   }, []);
+
+  // Función para obtener información del usuario desde la API
+  const fetchUserInfo = async (userId: string, token: string) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/users/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const userData = await response.json();
+        setUserName(userData.nombre || "Usuario");
+      } else {
+        setUserName("Usuario");
+      }
+    } catch (error) {
+      console.error('Error al obtener información del usuario:', error);
+      setUserName("Usuario");
+    }
+  };
 
   // Cerrar dropdown al hacer click fuera
   useEffect(() => {
@@ -190,6 +251,11 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
                       </>
                     ) : (
                       <>
+                        {/* Saludo con nombre del usuario */}
+                        <div className="px-4 py-2 text-gray-400 text-sm border-b border-gray-700">
+                          Hola, {userName}
+                        </div>
+                        
                         <a 
                           href="#" 
                           className="block px-4 py-2 text-gray-300 hover:bg-purple-600/20 hover:text-purple-300 transition-colors"
@@ -214,6 +280,24 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
                             <span>Mis Pedidos</span>
                           </div>
                         </a>
+                        
+                        {/* Panel de Administrador - Solo visible para admins */}
+                        {userRole === "admin" && (
+                          <a 
+                            href="#" 
+                            className="block px-4 py-2 text-orange-300 hover:bg-orange-600/20 hover:text-orange-200 transition-colors border-t border-gray-700 mt-2 pt-2"
+                            onClick={handleDropdownClick}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                              </svg>
+                              <span>Panel de Administrador</span>
+                            </div>
+                          </a>
+                        )}
+
                         <div className="border-t border-gray-700 mt-2 pt-2">
                           <button 
                             onClick={handleLogout}
