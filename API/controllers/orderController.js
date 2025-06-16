@@ -1,33 +1,14 @@
 const { Order } = require('../models');
 const { Key } = require('../models'); 
+const { sendPurchaseEmail } = require('../services/mailService');
 
-// Crear una nueva orden (user o guest)
 exports.createOrder = async (req, res) => {
   try {
-    const { items, productId, cantidad, stripeSessionId, licenses, buyerEmail } = req.body;
+    const { items, totalAmount, stripeSessionId, licenses, buyerEmail } = req.body;
 
-    // Validación básica con mensaje específico
-    if (!items) {
-      return res.status(400).json({ message: 'Falta el campo: items' });
+    if (!items || !totalAmount || !licenses) {
+      return res.status(400).json({ message: 'Faltan datos requeridos para crear la orden' });
     }
-    if (!productId) {
-      return res.status(400).json({ message: 'Falta el campo: productId' });
-    }
-    if (!cantidad) {
-      return res.status(400).json({ message: 'Falta el campo: cantidad' });
-    }
-    if (!licenses) {
-      return res.status(400).json({ message: 'Falta el campo: licenses' });
-    }
-
-    // Buscar keys disponibles
-    const keysVendidas = await Key.find({
-      producto: productId,
-      status: 'available'
-    }).limit(cantidad);
-
-    // Calcular el monto total
-    const totalAmount = keysVendidas.reduce((sum, key) => sum + key.price, 0);
 
     const order = await Order.create({
       user: req.user?.userId || undefined,
@@ -37,6 +18,16 @@ exports.createOrder = async (req, res) => {
       stripeSessionId,
       status: 'completed',
       licenses,
+    });
+
+    // Obtener las claves desde la DB
+    const licenseDocs = await Key.find({ _id: { $in: licenses } });
+
+    // Enviar correo con claves
+    await sendPurchaseEmail({
+      to: order.buyer_email,
+      orderId: order._id,
+      licenses: licenseDocs,
     });
 
     res.status(201).json(order);
