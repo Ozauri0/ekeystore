@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import Header from "../components/header";
 import Footer from "../components/footer";
+import { useCart } from "@/contexts/CartContext";
 
 interface Product {
   _id: string;
@@ -20,9 +21,11 @@ interface Product {
 }
 
 export default function Home() {
-  const [cartCount, setCartCount] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Usar el contexto del carrito
+  const { addToCart, itemCount } = useCart();
 
   // Función para obtener colores de categoría
   const getCategoryGradient = (categoria: string): string => {
@@ -68,25 +71,43 @@ export default function Home() {
     fetchProducts();
   }, []);
 
-  const addToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+  // Función para manejar agregar al carrito
+  const handleAddToCart = async (product: Product, e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setCartCount(prev => prev + 1);
     
     // Visual feedback
     const button = e.target as HTMLButtonElement;
     const originalHTML = button.innerHTML;
-    button.innerHTML = '✓ Agregado';
-    button.classList.add('bg-green-600');
+    button.innerHTML = '⏳ Agregando...';
+    button.disabled = true;
     
-    setTimeout(() => {
-      button.innerHTML = originalHTML;
-      button.classList.remove('bg-green-600');
-    }, 2000);
+    try {
+      await addToCart(product._id, 1);
+      
+      button.innerHTML = '✓ Agregado';
+      button.classList.add('bg-green-600');
+      
+      setTimeout(() => {
+        button.innerHTML = originalHTML;
+        button.classList.remove('bg-green-600');
+        button.disabled = false;
+      }, 2000);
+    } catch (error) {
+      console.error('Error al agregar al carrito:', error);
+      button.innerHTML = '❌ Error';
+      button.classList.add('bg-red-600');
+      
+      setTimeout(() => {
+        button.innerHTML = originalHTML;
+        button.classList.remove('bg-red-600');
+        button.disabled = false;
+      }, 2000);
+    }
   };
 
   return (
     <div className="bg-gray-950 text-white">
-      <Header cartCount={cartCount} onCartCountChange={setCartCount} />
+      <Header />
 
       {/* Featured Products - Main Focus - First Thing Visible */}
       <section className="pt-8 pb-8 sm:pt-12 sm:pb-12">
@@ -145,7 +166,7 @@ export default function Home() {
                         <span className="text-sm text-gray-500 line-through">${product.precioOriginal}</span>
                       )}
                     </div>
-                    <button onClick={addToCart} className="w-full btn-primary text-white border-0 rounded-xl shadow-lg py-2.5 text-sm font-medium flex items-center justify-center">
+                    <button onClick={(e) => handleAddToCart(product, e)} className="w-full btn-primary text-white border-0 rounded-xl shadow-lg py-2.5 text-sm font-medium flex items-center justify-center">
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 11-4 0v-6m4 0V9a2 2 0 10-4 0v4.01"/>
                       </svg>

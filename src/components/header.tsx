@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useCart } from "@/contexts/CartContext";
 
 interface HeaderProps {
   cartCount?: number;
@@ -16,6 +17,9 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [dropdownTimeout, setDropdownTimeout] = useState<NodeJS.Timeout | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  
+  // Usar el contexto del carrito
+  const { itemCount } = useCart();
 
   // Verificar si el usuario está logueado al cargar el componente
   useEffect(() => {
@@ -187,8 +191,8 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
                 <svg className="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 11-4 0v-6m4 0V9a2 2 0 10-4 0v4.01"/>
                 </svg>
-                <span className="hidden sm:inline">Carrito ({cartCount})</span>
-                <span className="sm:hidden">({cartCount})</span>
+                <span className="hidden sm:inline">Carrito ({itemCount})</span>
+                <span className="sm:hidden">({itemCount})</span>
               </Link>
 
               {/* Theme toggle */}
