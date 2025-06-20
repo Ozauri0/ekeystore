@@ -45,6 +45,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/keys', keyRoutes);
 app.use('/api/products', productRoutes);
+app.use('/uploads', express.static('uploads'));
 
 // Documentación Swagger
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

@@ -121,6 +121,8 @@ router.put('/:id', updateUser);
 // Eliminar perfil (admin o el mismo user)
 router.delete('/:id', deleteUser);
 
+router.delete('/:id', authorizeRole(['admin']), deleteUser);
+
 module.exports = router;
 
 

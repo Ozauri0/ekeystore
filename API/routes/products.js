@@ -2,6 +2,13 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
+const auth = require('../middlewares/authMiddleware');
+const authorize = require('../middlewares/authorizeRole');
+const { uploadImage, processImage, } = require('../middlewares/uploadImage');
+const { updateProduct, deleteProduct } = require('../controllers/productController');
+
+
+
 
 /**
  * @swagger
@@ -253,5 +260,75 @@ router.get('/featured/destacados', async (req, res) => {
     });
   }
 });
+
+
+/**
+ * @swagger
+ * /api/products:
+ *   post:
+ *     summary: Crear un nuevo producto (admin)
+ *     tags: [Products]
+ *     consumes:
+ *       - multipart/form-data
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *               categoria:
+ *                 type: string
+ *               precio:
+ *                 type: number
+ *               precioOriginal:
+ *                 type: number
+ *               descripcion:
+ *                 type: string
+ *               descuento:
+ *                 type: number
+ *               destacado:
+ *                 type: boolean
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: Producto creado
+ */
+router.post(
+  '/',
+  auth,
+  authorize(['admin']),
+  uploadImage,
+  processImage,
+  async (req, res) => {
+    try {
+      const { nombre, categoria, precio, precioOriginal, descripcion, descuento, destacado } = req.body;
+
+      const nuevo = await Product.create({
+        nombre,
+        categoria,
+        precio,
+        precioOriginal,
+        descripcion,
+        descuento,
+        destacado,
+        imagen: req.imageUrl || null,
+      });
+
+      res.status(201).json({ success: true, data: nuevo });
+    } catch (error) {
+      console.error('Error al crear producto:', error);
+      res.status(500).json({ success: false, message: 'Error al crear producto' });
+    }
+  }
+);
+
+
+router.put('/:id', auth, authorize(['admin']), updateProduct);
+router.delete('/:id', auth, authorize(['admin']), deleteProduct);
+
 
 module.exports = router;

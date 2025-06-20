@@ -20,3 +20,13 @@ exports.createKey = async (req, res) => {
     res.status(400).json({ message: 'Error al crear clave', error: err.message });
   }
 };
+
+exports.deleteKey = async (req, res) => {
+  try {
+    const deleted = await Key.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: 'Clave no encontrada' });
+    res.json({ success: true, message: 'Clave eliminada' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

@@ -7,6 +7,7 @@ const {
   getAllOrders,
   getMyOrders,
   getOrderById,
+  deleteOrder,
 } = require('../controllers/orderController');
 
 
@@ -114,5 +115,8 @@ router.get('/my', getMyOrders);
 
 // Ver orden por ID
 router.get('/:id', getOrderById);
+
+router.delete('/:id', authorizeRole(['admin']), deleteOrder);
+
 
 module.exports = router;

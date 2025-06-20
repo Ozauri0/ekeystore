@@ -2,7 +2,8 @@
   "name": "ekeystore-api",
   "version": "1.0.0",
   "description": "API for EKeyStore application",
-  "main": "server.js",  "scripts": {
+  "main": "server.js",
+  "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -28,6 +29,9 @@
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.15.1",
+    "multer": "^2.0.1",
+    "nodemailer": "^7.0.3",
+    "sharp": "^0.34.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },

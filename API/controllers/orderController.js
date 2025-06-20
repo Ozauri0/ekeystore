@@ -76,3 +76,13 @@ exports.getOrderById = async (req, res) => {
     res.status(500).json({ message: 'Error al obtener la orden' });
   }
 };
+
+exports.deleteOrder = async (req, res) => {
+  try {
+    const deleted = await Order.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: 'Orden no encontrada' });
+    res.json({ success: true, message: 'Orden eliminada' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
