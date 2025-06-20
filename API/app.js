@@ -9,6 +9,7 @@ const userRoutes = require('./routes/users');
 const orderRoutes = require('./routes/orders');
 const authRoutes = require('./routes/auth');
 const keyRoutes = require('./routes/keys');
+const productRoutes = require('./routes/products');
 const app = express();
 
 // Documentación Swagger
@@ -43,6 +44,9 @@ app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/keys', keyRoutes);
+app.use('/api/products', productRoutes);
+
+// Documentación Swagger
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Rutas base
 app.get('/', (req, res) => {

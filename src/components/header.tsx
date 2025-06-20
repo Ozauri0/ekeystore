@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 
 interface HeaderProps {
   cartCount?: number;
@@ -9,6 +10,38 @@ interface HeaderProps {
 export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps) {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [dropdownTimeout, setDropdownTimeout] = useState<NodeJS.Timeout | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Verificar si el usuario está logueado al cargar el componente
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsLoggedIn(true);
+      setUserName("Christian");
+    }
+  }, []);
+
+  // Cerrar dropdown al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowUserDropdown(false);
+        if (dropdownTimeout) {
+          clearTimeout(dropdownTimeout);
+          setDropdownTimeout(null);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownTimeout]);
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
@@ -17,6 +50,41 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+
+  const handleMouseEnterDropdown = () => {
+    if (dropdownTimeout) {
+      clearTimeout(dropdownTimeout);
+      setDropdownTimeout(null);
+    }
+    setShowUserDropdown(true);
+  };
+
+  const handleMouseLeaveDropdown = () => {
+    const timeout = setTimeout(() => {
+      setShowUserDropdown(false);
+    }, 150); // 150ms delay antes de cerrar
+    setDropdownTimeout(timeout);
+  };
+  const handleDropdownClick = () => {
+    setShowUserDropdown(false);
+    if (dropdownTimeout) {
+      clearTimeout(dropdownTimeout);
+      setDropdownTimeout(null);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    setUserName("");
+    setShowUserDropdown(false);
+    if (dropdownTimeout) {
+      clearTimeout(dropdownTimeout);
+      setDropdownTimeout(null);
+    }
+    window.location.href = "/";
+  };
+
   return (
     <>
       <header className="bg-gray-900/80 backdrop-blur border-b border-gray-800 sticky top-0 z-50">
@@ -24,19 +92,19 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
           <div className="flex items-center justify-between h-16">
             {/* Logo and brand */}
             <div className="flex items-center">
-              <a href="/" className="flex items-center space-x-3">
+              <Link href="/" className="flex items-center space-x-3">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
                   <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3l14 9-14 9V3z"/>
                   </svg>
                 </div>
                 <span className="text-xl sm:text-2xl font-bold gradient-text">E-keystore</span>
-              </a>
+              </Link>
             </div>
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex space-x-8">
-              <a href="/" className="text-gray-300 hover:text-purple-400 transition-colors font-medium">Inicio</a>
+              <Link href="/" className="text-gray-300 hover:text-purple-400 transition-colors font-medium">Inicio</Link>
               <a href="#" className="text-gray-300 hover:text-purple-400 transition-colors font-medium">Windows</a>
               <a href="#" className="text-gray-300 hover:text-purple-400 transition-colors font-medium">Office</a>
               <a href="#" className="text-gray-300 hover:text-purple-400 transition-colors font-medium">Games</a>
@@ -54,13 +122,13 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
               </div>
 
               {/* Cart button */}
-              <a href="/carrito" className="border border-purple-500/30 bg-gray-800/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center">
+              <Link href="/carrito" className="border border-purple-500/30 bg-gray-800/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center">
                 <svg className="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 11-4 0v-6m4 0V9a2 2 0 10-4 0v4.01"/>
                 </svg>
                 <span className="hidden sm:inline">Carrito ({cartCount})</span>
                 <span className="sm:hidden">({cartCount})</span>
-              </a>
+              </Link>
 
               {/* Theme toggle */}
               <button onClick={toggleTheme} className="border border-purple-500/30 bg-gray-800/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all p-2 rounded-lg">
@@ -73,7 +141,97 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
                   </svg>
                 )}
-              </button>
+              </button>              {/* User dropdown */}
+              <div 
+                ref={dropdownRef}
+                className="relative"
+                onMouseEnter={handleMouseEnterDropdown}
+                onMouseLeave={handleMouseLeaveDropdown}
+              >
+                <button className="border border-purple-500/30 bg-gray-800/50 text-purple-300 hover:bg-purple-600 hover:text-white hover:border-purple-600 transition-all p-2 rounded-lg flex items-center space-x-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                  {isLoggedIn && (
+                    <span className="hidden sm:inline text-sm font-medium">{userName}</span>
+                  )}
+                </button>                {/* Dropdown menu */}
+                {showUserDropdown && (
+                  <div 
+                    className="absolute right-0 mt-1 w-48 bg-gray-800/95 backdrop-blur border border-gray-700 rounded-xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                    onMouseEnter={handleMouseEnterDropdown}
+                    onMouseLeave={handleMouseLeaveDropdown}
+                  >{!isLoggedIn ? (
+                      <>
+                        <Link 
+                          href="/login" 
+                          className="block px-4 py-2 text-gray-300 hover:bg-purple-600/20 hover:text-purple-300 transition-colors"
+                          onClick={handleDropdownClick}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                            </svg>
+                            <span>Iniciar Sesión</span>
+                          </div>
+                        </Link>
+                        <Link 
+                          href="/registro" 
+                          className="block px-4 py-2 text-gray-300 hover:bg-purple-600/20 hover:text-purple-300 transition-colors"
+                          onClick={handleDropdownClick}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+                            </svg>
+                            <span>Registrarse</span>
+                          </div>
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <a 
+                          href="#" 
+                          className="block px-4 py-2 text-gray-300 hover:bg-purple-600/20 hover:text-purple-300 transition-colors"
+                          onClick={handleDropdownClick}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            <span>Mi Perfil</span>
+                          </div>
+                        </a>
+                        <a 
+                          href="#" 
+                          className="block px-4 py-2 text-gray-300 hover:bg-purple-600/20 hover:text-purple-300 transition-colors"
+                          onClick={handleDropdownClick}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <span>Mis Pedidos</span>
+                          </div>
+                        </a>
+                        <div className="border-t border-gray-700 mt-2 pt-2">
+                          <button 
+                            onClick={handleLogout}
+                            className="block w-full text-left px-4 py-2 text-red-400 hover:bg-red-600/20 hover:text-red-300 transition-colors"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                              </svg>
+                              <span>Cerrar Sesión</span>
+                            </div>
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
 
               {/* Mobile menu button */}
               <button
@@ -109,9 +267,37 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
               </div>
             </div>
 
+            {/* Mobile Authentication */}
+            {!isLoggedIn ? (
+              <div className="mb-4 space-y-2 sm:hidden">
+                <Link 
+                  href="/login" 
+                  className="block w-full text-center bg-gray-800/50 border border-gray-700 text-gray-300 hover:text-purple-400 transition-colors font-medium py-2 rounded-lg"
+                >
+                  Iniciar Sesión
+                </Link>
+                <Link 
+                  href="/registro" 
+                  className="block w-full text-center btn-primary text-white py-2 rounded-lg font-medium"
+                >
+                  Registrarse
+                </Link>
+              </div>
+            ) : (
+              <div className="mb-4 pb-4 border-b border-gray-800 sm:hidden">
+                <p className="text-gray-300 text-sm mb-2">Hola, {userName}</p>
+                <button 
+                  onClick={handleLogout}
+                  className="w-full text-center bg-gray-800/50 border border-gray-700 text-red-400 hover:text-red-300 transition-colors font-medium py-2 rounded-lg"
+                >
+                  Cerrar Sesión
+                </button>
+              </div>
+            )}
+
             {/* Mobile Navigation */}
             <nav className="space-y-3">
-              <a href="/" className="block text-gray-300 hover:text-purple-400 transition-colors font-medium py-2 border-b border-gray-800">Inicio</a>
+              <Link href="/" className="block text-gray-300 hover:text-purple-400 transition-colors font-medium py-2 border-b border-gray-800">Inicio</Link>
               <a href="#" className="block text-gray-300 hover:text-purple-400 transition-colors font-medium py-2 border-b border-gray-800">Windows</a>
               <a href="#" className="block text-gray-300 hover:text-purple-400 transition-colors font-medium py-2 border-b border-gray-800">Office</a>
               <a href="#" className="block text-gray-300 hover:text-purple-400 transition-colors font-medium py-2 border-b border-gray-800">Games</a>
