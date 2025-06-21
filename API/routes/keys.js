@@ -60,7 +60,7 @@ router.get('/', authorize(['admin']), getAllKeys);
 router.post('/', authorize(['admin']), createKey);
 router.delete('/:id', auth, authorize(['admin']), deleteKey);
 
-// Obtener claves disponibles por producto
+// Obtener claves disponibles por producto temporarily
 router.get('/disponibles/:productId', async (req, res) => {
   const { productId } = req.params;
   try {

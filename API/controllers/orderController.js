@@ -10,11 +10,16 @@ exports.createOrder = async (req, res) => {
       return res.status(400).json({ message: 'Faltan datos requeridos para crear la orden' });
     }
 
+    const emailDestino = buyerEmail || req.user?.email;
+    if (!emailDestino) {
+      return res.status(400).json({ message: 'No se especificó el correo del comprador' });
+    }
+
     const order = await Order.create({
       user: req.user?.userId || undefined,
-      buyer_email: buyerEmail || req.user?.email,
+      buyer_email: emailDestino,
       items,
-      totalAmount,
+      costo_total: totalAmount,
       stripeSessionId,
       status: 'completed',
       licenses,
@@ -25,16 +30,17 @@ exports.createOrder = async (req, res) => {
 
     // Enviar correo con claves
     await sendPurchaseEmail({
-      to: order.buyer_email,
+      to: emailDestino,
       orderId: order._id,
       licenses: licenseDocs,
-    });
+    }); 
 
     res.status(201).json(order);
   } catch (err) {
     res.status(500).json({ message: 'Error al crear orden', error: err.message });
   }
 };
+
 
 // Obtener todas las órdenes (admin)
 exports.getAllOrders = async (req, res) => {
