@@ -327,8 +327,142 @@ router.post(
 );
 
 
-router.put('/:id', auth, authorize(['admin']), updateProduct);
-router.delete('/:id', auth, authorize(['admin']), deleteProduct);
 
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   put:
+ *     summary: Actualizar un producto por ID (admin)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     consumes:
+ *       - multipart/form-data
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del producto
+ *     requestBody:
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *               categoria:
+ *                 type: string
+ *               precio:
+ *                 type: number
+ *               precioOriginal:
+ *                 type: number
+ *               descripcion:
+ *                 type: string
+ *               descuento:
+ *                 type: number
+ *               destacado:
+ *                 type: boolean
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Producto actualizado
+ *       404:
+ *         description: Producto no encontrado
+ */
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   delete:
+ *     summary: Eliminar un producto por ID (admin)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del producto
+ *     responses:
+ *       200:
+ *         description: Producto eliminado correctamente
+ *       404:
+ *         description: Producto no encontrado
+ */
+
+router.put(
+  '/:id',
+  auth,
+  authorize(['admin']),
+  uploadImage,
+  processImage,
+  async (req, res) => {
+    try {
+      const producto = await Product.findById(req.params.id);
+      if (!producto) return res.status(404).json({ message: 'Producto no encontrado' });
+
+      // Eliminar imagen anterior si hay nueva
+      if (req.imageUrl && producto.imagen) {
+        const oldPath = path.join(__dirname, '..', producto.imagen);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+
+      // Actualizar campos
+      Object.assign(producto, req.body);
+      if (req.imageUrl) producto.imagen = req.imageUrl;
+
+      await producto.save();
+      res.json({ success: true, data: producto });
+    } catch (err) {
+      res.status(500).json({ message: 'Error al actualizar producto', error: err.message });
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/products/{id}:
+ *   delete:
+ *     summary: Eliminar un producto por ID (admin)
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID del producto
+ *     responses:
+ *       200:
+ *         description: Producto eliminado correctamente
+ *       404:
+ *         description: Producto no encontrado
+ */
+
+router.delete('/:id', auth, authorize(['admin']), async (req, res) => {
+  try {
+    const producto = await Product.findByIdAndDelete(req.params.id);
+    if (!producto) return res.status(404).json({ message: 'Producto no encontrado' });
+
+    // Eliminar imagen asociada si existe
+    if (producto.imagen) {
+      const imagePath = path.join(__dirname, '..', producto.imagen);
+      if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
+    }
+
+    res.json({ success: true, message: 'Producto eliminado correctamente' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error al eliminar producto', error: error.message });
+  }
+});
 
 module.exports = router;
