@@ -65,13 +65,12 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
         setUserName("");
         setUserRole("");
       }
-    }
-  }, []);
+    }  }, []);
 
   // Función para obtener información del usuario desde la API
   const fetchUserInfo = async (userId: string, token: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/users/${userId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

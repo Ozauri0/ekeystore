@@ -58,11 +58,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       setItemCount(0);
       setTotal(0);
       return;
-    }
-
-    try {
+    }    try {
       // Obtener precios de productos
-      const response = await fetch('http://localhost:3001/api/products');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/products`);
       if (response.ok) {
         const data = await response.json();
         const products = data.data;
@@ -87,11 +85,10 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const loadCart = async () => {
-    try {
-      if (isAuthenticated) {
+    try {      if (isAuthenticated) {
         // Cargar desde el servidor para usuarios autenticados
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3001/api/cart', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/cart`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -120,10 +117,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const addToCart = async (productId: string, quantity: number) => {
-    try {
-      if (isAuthenticated) {
+    try {      if (isAuthenticated) {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3001/api/cart/add', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/cart/add`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -168,10 +164,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const updateQuantity = async (productId: string, quantity: number) => {
     if (quantity < 1) return;
 
-    try {
-      if (isAuthenticated) {
+    try {      if (isAuthenticated) {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3001/api/cart/update', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/cart/update`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -201,10 +196,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const removeFromCart = async (productId: string) => {
-    try {
-      if (isAuthenticated) {
+    try {      if (isAuthenticated) {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3001/api/cart/remove', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/cart/remove`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',
@@ -232,10 +226,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const clearCart = async () => {
-    try {
-      if (isAuthenticated) {
+    try {      if (isAuthenticated) {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:3001/api/cart/clear', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/cart/clear`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`

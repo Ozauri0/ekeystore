@@ -34,10 +34,8 @@ export default function RegisterPage() {
       setError("Las contraseñas no coinciden");
       setLoading(false);
       return;
-    }
-
-    try {
-      const response = await fetch("http://localhost:3001/api/auth/register", {
+    }    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

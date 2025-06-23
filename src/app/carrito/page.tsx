@@ -28,10 +28,9 @@ export default function CartPage() {
   const [discountMessage, setDiscountMessage] = useState("");
 
   // Cargar información de productos
-  useEffect(() => {
-    const fetchProducts = async () => {
+  useEffect(() => {    const fetchProducts = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/products');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/products`);
         if (response.ok) {
           const data = await response.json();
           const productsMap: { [key: string]: Product } = {};
