@@ -465,4 +465,16 @@ router.delete('/:id', auth, authorize(['admin']), async (req, res) => {
   }
 });
 
+// Buscar y filtrar productos
+router.get('/search', auth, authorize(['admin']), require('../controllers/productController').searchProducts);
+
+// Actualizar imagen del producto
+router.put('/:id/image', auth, authorize(['admin']), uploadImage, processImage, require('../controllers/productController').updateProductImage);
+
+// Activar/desactivar producto
+router.patch('/:id/toggle-active', auth, authorize(['admin']), require('../controllers/productController').toggleProductActive);
+
+// Agregar o actualizar stock
+router.patch('/:id/stock', auth, authorize(['admin']), require('../controllers/productController').updateProductStock);
+
 module.exports = router;
