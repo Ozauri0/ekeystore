@@ -11,7 +11,8 @@
     "format": "prettier --write .",
     "prepare": "husky install",
     "seed:products": "node scripts/seedProducts.js",
-    "seed": "npm run seed:products"
+    "seed": "npm run seed:products",
+    "generate:admin": "node scripts/generateAdmin.js"
   },
   "keywords": [
     "api",

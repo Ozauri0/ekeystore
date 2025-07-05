@@ -10,7 +10,7 @@ const Recommendation = require('./Recomendation');
 module.exports = {
   User,
   Product,
-  Cart,
+  Cart: Cart, // El modelo Cart.js exporta 'Carrito'
   Order,
   OrderDetail,
   Key,

@@ -10,6 +10,7 @@ const orderRoutes = require('./routes/orders');
 const authRoutes = require('./routes/auth');
 const keyRoutes = require('./routes/keys');
 const productRoutes = require('./routes/products');
+const cartRoutes = require('./routes/cart');
 const app = express();
 
 // Documentación Swagger
@@ -46,6 +47,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/keys', keyRoutes);
 app.use('/api/products', productRoutes);
 app.use('/uploads', express.static('uploads'));
+app.use('/api/cart', cartRoutes);
 
 // Documentación Swagger
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
