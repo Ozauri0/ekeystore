@@ -63,12 +63,35 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-exports.deleteUser = async (req, res) => {
+// Cambiar rol de usuario (solo admin)
+exports.changeUserRole = async (req, res) => {
   try {
-    const deleted = await User.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: 'Usuario no encontrado' });
-    res.json({ success: true, message: 'Usuario eliminado' });
+    const { id } = req.params;
+    const { role } = req.body;
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'No autorizado' });
+    }
+    const user = await User.findByIdAndUpdate(id, { role }, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+    res.json({ success: true, user });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ message: 'Error al cambiar rol', error: err.message });
+  }
+};
+
+// Activar/desactivar usuario (solo admin)
+exports.toggleUserActive = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'No autorizado' });
+    }
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+    user.activo = !user.activo;
+    await user.save();
+    res.json({ success: true, activo: user.activo });
+  } catch (err) {
+    res.status(500).json({ message: 'Error al actualizar usuario', error: err.message });
   }
 };

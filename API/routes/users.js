@@ -6,6 +6,8 @@ const {
   getUserById,
   updateUser,
   deleteUser,
+  changeUserRole,
+  toggleUserActive,
 } = require('../controllers/userController');
 
 const authMiddleware = require('../middlewares/authMiddleware');
@@ -122,6 +124,11 @@ router.put('/:id', updateUser);
 router.delete('/:id', deleteUser);
 
 router.delete('/:id', authorizeRole(['admin']), deleteUser);
+
+// Cambiar rol de usuario (solo admin)
+router.patch('/:id/role', authorizeRole(['admin']), changeUserRole);
+// Activar/desactivar usuario (solo admin)
+router.patch('/:id/toggle-active', authorizeRole(['admin']), toggleUserActive);
 
 module.exports = router;
 
