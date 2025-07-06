@@ -1,3 +1,4 @@
+"use client";
 import AdminNav from "../AdminNav";
 import { useEffect, useState } from "react";
 import { User } from "./types";
@@ -17,7 +18,16 @@ export default function UsuariosPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/users", { credentials: "include" });
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("token")
+          : null;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users`, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
       if (!res.ok) throw new Error("Error al obtener usuarios");
       const data = await res.json();
       setUsers(data);
@@ -33,9 +43,13 @@ export default function UsuariosPage() {
     setActionLoading(id);
     setActionError(null);
     try {
-      const res = await fetch(`/api/users/${id}`, {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${id}`, {
         method: "DELETE",
-        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
       });
       if (!res.ok) throw new Error("Error al eliminar usuario");
       setUsers((prev) => prev.filter((u) => u._id !== id));
@@ -50,9 +64,13 @@ export default function UsuariosPage() {
     setActionLoading(id);
     setActionError(null);
     try {
-      const res = await fetch(`/api/users/${id}/toggle-active`, {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${id}/toggle-active`, {
         method: "PATCH",
-        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
       });
       if (!res.ok) throw new Error("Error al cambiar estado");
       await fetchUsers();
@@ -67,10 +85,13 @@ export default function UsuariosPage() {
     setActionLoading(id);
     setActionError(null);
     try {
-      const res = await fetch(`/api/users/${id}/role`, {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/${id}/role`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ role: newRole }),
       });
       if (!res.ok) throw new Error("Error al cambiar rol");
@@ -83,56 +104,48 @@ export default function UsuariosPage() {
   }
 
   return (
-    <div>
+    <div className="max-w-6xl mx-auto p-4">
       <AdminNav />
-      <h1 className="text-2xl font-bold mb-4">Gestión de Usuarios</h1>
-      {loading && <p>Cargando usuarios...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-      {actionError && <p className="text-red-500">{actionError}</p>}
-      {!loading && !error && (
-        <table className="min-w-full border mt-4">
-          <thead>
+      <h1 className="text-3xl font-bold mb-6 gradient-text">Gestión de Usuarios</h1>
+      {loading && <p className="text-gray-700">Cargando usuarios...</p>}
+      {error && <p className="text-red-500 font-semibold">{error}</p>}
+      <div className="overflow-x-auto rounded-lg shadow-lg bg-white">
+        <table className="min-w-full border border-gray-200">
+          <thead className="bg-gradient-to-r from-purple-400 to-violet-500 text-white">
             <tr>
-              <th className="border px-2 py-1">Nombre</th>
-              <th className="border px-2 py-1">Email</th>
-              <th className="border px-2 py-1">Rol</th>
-              <th className="border px-2 py-1">Activo</th>
-              <th className="border px-2 py-1">Acciones</th>
+              <th className="border border-gray-200 px-3 py-2 text-left">ID</th>
+              <th className="border border-gray-200 px-3 py-2 text-left">Nombre</th>
+              <th className="border border-gray-200 px-3 py-2 text-left">Email</th>
+              <th className="border border-gray-200 px-3 py-2 text-left">Rol</th>
+              <th className="border border-gray-200 px-3 py-2 text-left">Activo</th>
+              <th className="border border-gray-200 px-3 py-2 text-left">Acciones</th>
             </tr>
           </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user._id}>
-                <td className="border px-2 py-1">{user.nombre}</td>
-                <td className="border px-2 py-1">{user.email}</td>
-                <td className="border px-2 py-1">
+          <tbody className="bg-white">
+            {users.map((user, idx) => (
+              <tr key={user._id} className={idx % 2 === 0 ? "bg-gray-50" : ""}>
+                <td className="border border-gray-200 px-3 py-2 text-xs break-all">{user._id}</td>
+                <td className="border border-gray-200 px-3 py-2 text-xs">{user.nombre || '-'}</td>
+                <td className="border border-gray-200 px-3 py-2 text-xs">{user.email}</td>
+                <td className="border border-gray-200 px-3 py-2 text-xs">
                   <select
+                    className="border rounded px-2 py-1 text-xs bg-white"
                     value={user.role}
-                    onChange={(e) => handleChangeRole(user._id, e.target.value)}
+                    onChange={e => handleChangeRole(user._id, e.target.value)}
                     disabled={actionLoading === user._id}
-                    className="bg-transparent border rounded px-1"
                   >
-                    <option value="user">user</option>
-                    <option value="admin">admin</option>
+                    <option value="user">Usuario</option>
+                    <option value="admin">Admin</option>
                   </select>
                 </td>
-                <td className="border px-2 py-1">
-                  <button
-                    onClick={() => handleToggleActive(user._id)}
-                    disabled={actionLoading === user._id}
-                    className={`px-2 py-1 rounded ${
-                      user.activo ? "bg-green-200" : "bg-red-200"
-                    }`}
-                  >
-                    {user.activo ? "Sí" : "No"}
-                  </button>
+                <td className="border border-gray-200 px-3 py-2 text-xs">
+                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${user.activo ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'}`}>{user.activo ? 'Sí' : 'No'}</span>
                 </td>
-                <td className="border px-2 py-1">
-                  <button
-                    onClick={() => handleDelete(user._id)}
-                    disabled={actionLoading === user._id}
-                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"
-                  >
+                <td className="border border-gray-200 px-3 py-2 text-xs space-x-2">
+                  <button className="btn-primary text-white px-2 py-1 rounded text-xs" onClick={() => handleToggleActive(user._id)} disabled={actionLoading === user._id}>
+                    {user.activo ? 'Desactivar' : 'Activar'}
+                  </button>
+                  <button className="btn-secondary text-white px-2 py-1 rounded text-xs" onClick={() => handleDelete(user._id)} disabled={actionLoading === user._id}>
                     Eliminar
                   </button>
                 </td>
@@ -140,7 +153,8 @@ export default function UsuariosPage() {
             ))}
           </tbody>
         </table>
-      )}
+      </div>
+      {actionError && <p className="text-red-500 mt-2">{actionError}</p>}
     </div>
   );
 }

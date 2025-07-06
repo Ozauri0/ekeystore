@@ -286,8 +286,8 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
                         
                         {/* Panel de Administrador - Solo visible para admins */}
                         {userRole === "admin" && (
-                          <a 
-                            href="#" 
+                          <Link 
+                            href="/admin" 
                             className="block px-4 py-2 text-orange-300 hover:bg-orange-600/20 hover:text-orange-200 transition-colors border-t border-gray-700 mt-2 pt-2"
                             onClick={handleDropdownClick}
                           >
@@ -298,7 +298,7 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
                               </svg>
                               <span>Panel de Administrador</span>
                             </div>
-                          </a>
+                          </Link>
                         )}
 
                         <div className="border-t border-gray-700 mt-2 pt-2">

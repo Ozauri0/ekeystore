@@ -1,9 +1,16 @@
 const { Producto } = require('../models');
 
+// Helper para obtener el nombre de la imagen si viene por multipart
+function getImagenFromReq(req) {
+  if (req.file && req.file.filename) return req.file.filename;
+  if (req.body.imagen) return req.body.imagen;
+  return undefined;
+}
+
 exports.getAllProducts = async (req, res) => {
   try {
     const productos = await Producto.find();
-    res.json(productos);
+    res.json({ data: productos });
   } catch (err) {
     res.status(500).json({ message: 'Error al obtener productos' });
   }
@@ -11,17 +18,18 @@ exports.getAllProducts = async (req, res) => {
 
 exports.createProduct = async (req, res) => {
   try {
-    const { nombre, tipo, precio, descripcion } = req.body;
-
-    const nuevo = await Product.create({
-      nombre,
-      tipo,
-      precio,
-      descripcion,
-      imageUrl: req.imageUrl || null,
+    const {
+      nombre, categoria, precio, precioOriginal, descripcion, descripcionCorta,
+      descuento, stock, activo, destacado, etiquetas, valoracion, numeroReseñas,
+      tipoEntrega, sistemaOperativo, requisitos, garantia, idiomas, version
+    } = req.body;
+    const imagen = getImagenFromReq(req);
+    const nuevo = await Producto.create({
+      nombre, categoria, precio, precioOriginal, descripcion, descripcionCorta,
+      imagen, descuento, stock, activo, destacado, etiquetas, valoracion, numeroReseñas,
+      tipoEntrega, sistemaOperativo, requisitos, garantia, idiomas, version
     });
-
-    res.status(201).json(nuevo);
+    res.status(201).json({ data: nuevo });
   } catch (err) {
     res.status(400).json({ message: 'Error al crear producto', error: err.message });
   }
@@ -29,17 +37,21 @@ exports.createProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const update = { ...req.body };
+    // Si viene imagen nueva, actualizarla
+    const imagen = getImagenFromReq(req);
+    if (imagen) update.imagen = imagen;
+    const updated = await Producto.findByIdAndUpdate(req.params.id, update, { new: true });
     if (!updated) return res.status(404).json({ message: 'Producto no encontrado' });
-    res.json({ success: true, data: updated });
+    res.json({ data: updated });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
 exports.deleteProduct = async (req, res) => {
   try {
-    const deleted = await Product.findByIdAndDelete(req.params.id);
+    const deleted = await Producto.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: 'Producto no encontrado' });
     res.json({ success: true, message: 'Producto eliminado' });
   } catch (err) {

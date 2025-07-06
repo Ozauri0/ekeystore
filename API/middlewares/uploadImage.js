@@ -31,6 +31,6 @@ const processImage = async (req, res, next) => {
 };
 
 module.exports = {
-  uploadImage: upload.single('image'),
+  uploadImage: upload.single('imagen'),
   processImage,
 };
