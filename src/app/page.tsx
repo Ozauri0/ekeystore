@@ -5,6 +5,13 @@ import Header from "../components/header";
 import Footer from "../components/footer";
 import { useCart } from "@/contexts/CartContext";
 
+// Utilidad para limpiar la ruta de la imagen y evitar doble /uploads/
+function cleanImageSrc(src: string) {
+  if (!src) return "/default-image.webp"; // fallback si no hay imagen
+  // Elimina cualquier repetición de /uploads/ al inicio
+  return src.replace(/(\/uploads\/)+/, "/uploads/");
+}
+
 interface Product {
   _id: string;
   nombre: string;
@@ -23,7 +30,6 @@ interface Product {
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  
   // Usar el contexto del carrito
   const { addToCart, itemCount } = useCart();
 
@@ -129,52 +135,63 @@ export default function Home() {
                 <p className="text-gray-400 text-lg">No hay productos disponibles</p>
               </div>
             ) : (
-              products.map((product) => (
-                <div key={product._id} className="bg-gray-800/50 border border-gray-700 hover:bg-gray-800 transition-all duration-300 backdrop-blur group rounded-lg ring-1 ring-purple-500/50 card-hover">
-                  <div className="p-0">
-                    <div className="relative overflow-hidden rounded-t-lg">
-                      <div className={`w-full h-40 bg-gradient-to-br ${getCategoryGradient(product.categoria)} flex items-center justify-center text-white text-lg font-bold group-hover:scale-105 transition-transform duration-300`}>
-                        {product.nombre}
+              products.map((product) => {
+                const imgSrc = cleanImageSrc(product.imagen && !product.imagen.startsWith('http') ? `/uploads/${product.imagen}` : product.imagen);
+                return (
+                  <div key={product._id} className="bg-gray-800/50 border border-gray-700 hover:bg-gray-800 transition-all duration-300 backdrop-blur group rounded-lg ring-1 ring-purple-500/50 card-hover">
+                    <div className="p-0">
+                      <div className="relative overflow-hidden rounded-t-lg">
+                        {imgSrc && (
+                          <Image
+                            src={imgSrc}
+                            alt={product.nombre}
+                            width={400}
+                            height={160}
+                            className="w-full h-40 object-contain bg-white"
+                            priority
+                            style={{ width: 'auto', height: 'auto' }}
+                          />
+                        )}
+                        <div className={`absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent pointer-events-none`}></div>
+                        {product.descuento && product.descuento > 0 && (
+                          <span className="absolute top-2 left-2 bg-gradient-to-r from-red-500 to-pink-500 text-white px-2 py-1 rounded text-xs font-medium">-{product.descuento}%</span>
+                        )}
+                        {product.destacado && (
+                          <span className="absolute top-2 right-2 bg-gray-900/80 text-purple-300 border border-purple-500/50 px-2 py-1 rounded text-xs">Destacado</span>
+                        )}
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent"></div>
-                      {product.descuento && product.descuento > 0 && (
-                        <span className="absolute top-2 left-2 bg-gradient-to-r from-red-500 to-pink-500 text-white px-2 py-1 rounded text-xs font-medium">-{product.descuento}%</span>
-                      )}
-                      {product.destacado && (
-                        <span className="absolute top-2 right-2 bg-gray-900/80 text-purple-300 border border-purple-500/50 px-2 py-1 rounded text-xs">Destacado</span>
-                      )}
                     </div>
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="text-xs border border-purple-500/50 text-purple-300 px-2 py-1 rounded">{product.categoria}</span>
-                      <span className="text-xs text-green-400 font-medium">Instantánea</span>
-                    </div>
-                    <h3 className="text-base mb-3 text-white group-hover:text-purple-300 transition-colors font-semibold">{product.nombre}</h3>
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="flex items-center">
-                        <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    <div className="p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-xs border border-purple-500/50 text-purple-300 px-2 py-1 rounded">{product.categoria}</span>
+                        <span className="text-xs text-green-400 font-medium">Instantánea</span>
+                      </div>
+                      <h3 className="text-base mb-3 text-white group-hover:text-purple-300 transition-colors font-semibold">{product.nombre}</h3>
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className="flex items-center">
+                          <svg className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                          </svg>
+                          <span className="text-sm font-medium ml-1 text-gray-300">{product.valoracion}</span>
+                        </div>
+                        <span className="text-sm text-gray-500">({product.numeroReseñas})</span>
+                      </div>
+                      <div className="flex items-center gap-3 mb-4">
+                        <span className="text-xl font-bold price-gradient">${product.precio}</span>
+                        {product.precioOriginal && product.precioOriginal > product.precio && (
+                          <span className="text-sm text-gray-500 line-through">${product.precioOriginal}</span>
+                        )}
+                      </div>
+                      <button onClick={(e) => handleAddToCart(product, e)} className="w-full btn-primary text-white border-0 rounded-xl shadow-lg py-2.5 text-sm font-medium flex items-center justify-center">
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 11-4 0v-6m4 0V9a2 2 0 10-4 0v4.01"/>
                         </svg>
-                        <span className="text-sm font-medium ml-1 text-gray-300">{product.valoracion}</span>
-                      </div>
-                      <span className="text-sm text-gray-500">({product.numeroReseñas})</span>
+                        Agregar al carrito
+                      </button>
                     </div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className="text-xl font-bold price-gradient">${product.precio}</span>
-                      {product.precioOriginal && product.precioOriginal > product.precio && (
-                        <span className="text-sm text-gray-500 line-through">${product.precioOriginal}</span>
-                      )}
-                    </div>
-                    <button onClick={(e) => handleAddToCart(product, e)} className="w-full btn-primary text-white border-0 rounded-xl shadow-lg py-2.5 text-sm font-medium flex items-center justify-center">
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 11-4 0v-6m4 0V9a2 2 0 10-4 0v4.01"/>
-                      </svg>
-                      Agregar al carrito
-                    </button>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 
