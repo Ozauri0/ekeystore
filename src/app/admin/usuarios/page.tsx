@@ -9,6 +9,7 @@ export default function UsuariosPage() {
   const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetchUsers();
@@ -103,12 +104,28 @@ export default function UsuariosPage() {
     }
   }
 
+  const filteredUsers = users.filter(
+    (user) =>
+      user.nombre?.toLowerCase().includes(search.toLowerCase()) ||
+      user.email?.toLowerCase().includes(search.toLowerCase()) ||
+      user._id?.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="max-w-6xl mx-auto p-4">
       <AdminNav />
       <h1 className="text-3xl font-bold mb-6 gradient-text">Gestión de Usuarios</h1>
       {loading && <p className="text-gray-700">Cargando usuarios...</p>}
       {error && <p className="text-red-500 font-semibold">{error}</p>}
+      <div className="mb-4 flex justify-end">
+        <input
+          type="text"
+          placeholder="Buscar por nombre, email o ID..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="border px-3 py-2 rounded w-full max-w-xs"
+        />
+      </div>
       <div className="overflow-x-auto rounded-lg shadow-lg bg-white">
         <table className="min-w-full border border-gray-200">
           <thead className="bg-gradient-to-r from-purple-400 to-violet-500 text-white">
@@ -122,7 +139,7 @@ export default function UsuariosPage() {
             </tr>
           </thead>
           <tbody className="bg-white">
-            {users.map((user, idx) => (
+            {filteredUsers.map((user, idx) => (
               <tr key={user._id} className={idx % 2 === 0 ? "bg-gray-50" : ""}>
                 <td className="border border-gray-200 px-3 py-2 text-xs break-all">{user._id}</td>
                 <td className="border border-gray-200 px-3 py-2 text-xs">{user.nombre || '-'}</td>
@@ -130,8 +147,12 @@ export default function UsuariosPage() {
                 <td className="border border-gray-200 px-3 py-2 text-xs">
                   <select
                     className="border rounded px-2 py-1 text-xs bg-white"
-                    value={user.role}
-                    onChange={e => handleChangeRole(user._id, e.target.value)}
+                    value={user.role || (user as any).rol}
+                    onChange={e => {
+                      if (confirm(`¿Seguro que deseas cambiar el rol de este usuario a '${e.target.value}'?`)) {
+                        handleChangeRole(user._id, e.target.value);
+                      }
+                    }}
                     disabled={actionLoading === user._id}
                   >
                     <option value="user">Usuario</option>
@@ -139,11 +160,11 @@ export default function UsuariosPage() {
                   </select>
                 </td>
                 <td className="border border-gray-200 px-3 py-2 text-xs">
-                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${user.activo ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'}`}>{user.activo ? 'Sí' : 'No'}</span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${user.activo === false ? 'bg-gray-200 text-gray-700' : 'bg-green-100 text-green-700'}`}>{user.activo === false ? 'No' : 'Sí'}</span>
                 </td>
                 <td className="border border-gray-200 px-3 py-2 text-xs space-x-2">
                   <button className="btn-primary text-white px-2 py-1 rounded text-xs" onClick={() => handleToggleActive(user._id)} disabled={actionLoading === user._id}>
-                    {user.activo ? 'Desactivar' : 'Activar'}
+                    {user.activo === false ? 'Activar' : 'Desactivar'}
                   </button>
                   <button className="btn-secondary text-white px-2 py-1 rounded text-xs" onClick={() => handleDelete(user._id)} disabled={actionLoading === user._id}>
                     Eliminar

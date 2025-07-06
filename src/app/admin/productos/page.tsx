@@ -39,6 +39,7 @@ export default function ProductosPage() {
   const [form, setForm] = useState<Partial<Product> & { imageFile?: File | null }>({});
   const [isEditing, setIsEditing] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetchProductos();
@@ -244,6 +245,13 @@ export default function ProductosPage() {
     }
   }
 
+  const filteredProductos = productos.filter(
+    (prod) =>
+      prod.nombre?.toLowerCase().includes(search.toLowerCase()) ||
+      prod.categoria?.toLowerCase().includes(search.toLowerCase()) ||
+      prod._id?.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="max-w-6xl mx-auto p-4">
       <AdminNav />
@@ -257,6 +265,15 @@ export default function ProductosPage() {
         >
           Crear producto
         </button>
+      </div>
+      <div className="mb-4 flex justify-end">
+        <input
+          type="text"
+          placeholder="Buscar por nombre, categoría o ID..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="border px-3 py-2 rounded w-full max-w-xs"
+        />
       </div>
       {showForm && (
         <form onSubmit={handleSubmitForm} className="mb-6 p-4 border rounded bg-gray-50">
@@ -315,7 +332,7 @@ export default function ProductosPage() {
               </tr>
             </thead>
             <tbody className="bg-white">
-              {productos.map((prod, idx) => (
+              {filteredProductos.map((prod, idx) => (
                 <tr key={prod._id} className={idx % 2 === 0 ? "bg-gray-50" : ""}>
                   <td className="border border-gray-200 px-3 py-2 text-xs break-all">{prod._id}</td>
                   <td className="border border-gray-200 px-3 py-2 text-xs">{prod.nombre}</td>

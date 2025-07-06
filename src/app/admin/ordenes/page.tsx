@@ -24,6 +24,7 @@ export default function OrdenesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedOrden, setSelectedOrden] = useState<Orden | null>(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetchOrdenes();
@@ -60,6 +61,13 @@ export default function OrdenesPage() {
     }
   };
 
+  const filteredOrdenes = ordenes.filter(
+    (orden) =>
+      orden._id?.toLowerCase().includes(search.toLowerCase()) ||
+      orden.user?.email?.toLowerCase().includes(search.toLowerCase()) ||
+      orden.user?.nombre?.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="max-w-6xl mx-auto p-4">
       <AdminNav />
@@ -68,6 +76,15 @@ export default function OrdenesPage() {
       {error && <p className="text-red-500 font-semibold">{error}</p>}
       {!loading && !error && (
         <div className="overflow-x-auto rounded-lg shadow-lg bg-white">
+          <div className="mb-4 flex justify-end">
+            <input
+              type="text"
+              placeholder="Buscar por usuario, email o ID..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="border px-3 py-2 rounded w-full max-w-xs"
+            />
+          </div>
           <table className="min-w-full border border-gray-200">
             <thead className="bg-gradient-to-r from-purple-400 to-violet-500 text-white">
               <tr>
@@ -80,7 +97,7 @@ export default function OrdenesPage() {
               </tr>
             </thead>
             <tbody className="bg-white">
-              {ordenes.map((orden, idx) => {
+              {filteredOrdenes.map((orden, idx) => {
                 let usuario = "-";
                 if (orden.user) {
                   usuario = orden.user.email || orden.user.nombre || orden.user._id || "-";
