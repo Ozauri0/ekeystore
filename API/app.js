@@ -11,6 +11,7 @@ const authRoutes = require('./routes/auth');
 const keyRoutes = require('./routes/keys');
 const productRoutes = require('./routes/products');
 const cartRoutes = require('./routes/cart');
+const stripeRoutes = require('./routes/stripe');
 const app = express();
 
 // Documentación Swagger
@@ -48,6 +49,7 @@ app.use('/api/keys', keyRoutes);
 app.use('/api/products', productRoutes);
 app.use('/uploads', express.static('uploads'));
 app.use('/api/cart', cartRoutes);
+app.use('/api/stripe', stripeRoutes);
 
 // Documentación Swagger
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

@@ -82,7 +82,8 @@ export default function LicenciasPage() {
 
   // Función para determinar el color de estado
   const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
+    if (!status) return 'bg-gray-800 text-gray-300';
+    switch ((status || '').toLowerCase()) {
       case 'activa':
       case 'active':
       case 'activada':
