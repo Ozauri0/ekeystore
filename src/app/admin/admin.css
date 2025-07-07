@@ -1,0 +1,63 @@
+/* Gradientes de categorías */
+.category-gradient-1 {
+  background: linear-gradient(to bottom right, #2563eb, #7c3aed);
+}
+
+.category-gradient-2 {
+  background: linear-gradient(to bottom right, #f97316, #dc2626);
+}
+
+.category-gradient-3 {
+  background: linear-gradient(to bottom right, #374151, #111827);
+}
+
+.category-gradient-4 {
+  background: linear-gradient(to bottom right, #16a34a, #059669);
+}
+
+.category-gradient-5 {
+  background: linear-gradient(to bottom right, #dc2626, #db2777);
+}
+
+.category-gradient-6 {
+  background: linear-gradient(to bottom right, #4f46e5, #7c3aed);
+}
+
+/* Estilos de tarjetas */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.1);
+}
+
+/* Gradiente para textos */
+.gradient-text {
+  background: linear-gradient(to right, #a78bfa, #c4b5fd, #f0abfc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Estilos de botones */
+.btn-primary {
+  background: linear-gradient(to right, #7c3aed, #6d28d9);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(to right, #6d28d9, #5b21b6);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: linear-gradient(to right, #4b5563, #374151);
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(to right, #374151, #1f2937);
+  transform: translateY(-1px);
+}

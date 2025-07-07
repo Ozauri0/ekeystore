@@ -2,6 +2,7 @@
 import AdminNav from "../AdminNav";
 import { useEffect, useState } from "react";
 import { User } from "./types";
+import "../admin.css"; // Importamos los estilos de administración
 
 export default function UsuariosPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -112,70 +113,116 @@ export default function UsuariosPage() {
   );
 
   return (
-    <div className="max-w-6xl mx-auto p-4">
-      <AdminNav />
-      <h1 className="text-3xl font-bold mb-6 gradient-text">Gestión de Usuarios</h1>
-      {loading && <p className="text-gray-700">Cargando usuarios...</p>}
-      {error && <p className="text-red-500 font-semibold">{error}</p>}
-      <div className="mb-4 flex justify-end">
-        <input
-          type="text"
-          placeholder="Buscar por nombre, email o ID..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="border px-3 py-2 rounded w-full max-w-xs"
-        />
+    <div className="bg-gray-950 text-white min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <AdminNav />
+        
+        <div className="mb-8 mt-6">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
+              Gestión de Usuarios
+            </span>
+          </h1>
+          <p className="text-gray-400">Administra los usuarios de tu plataforma</p>
+        </div>
+
+        {loading && (
+          <div className="bg-gray-800/50 border border-gray-700 backdrop-blur rounded-lg p-4 text-gray-300">
+            Cargando usuarios...
+          </div>
+        )}
+        
+        {error && (
+          <div className="bg-red-900/50 border border-red-700 backdrop-blur rounded-lg p-4 text-red-200 mb-4">
+            {error}
+          </div>
+        )}
+        
+        <div className="bg-gray-800/50 border border-gray-700 backdrop-blur rounded-lg ring-1 ring-purple-500/50 p-6 mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-white">Lista de Usuarios</h2>
+            <input
+              type="text"
+              placeholder="Buscar por nombre, email o ID..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="bg-gray-900/70 border border-gray-700 text-gray-200 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/50 w-full max-w-xs"
+            />
+          </div>
+          
+          <div className="overflow-x-auto rounded-lg">
+            <table className="min-w-full">
+              <thead className="bg-gradient-to-r from-purple-600 to-violet-600 text-white">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">ID</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Nombre</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Email</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Rol</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Activo</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-700">
+                {filteredUsers.map((user, idx) => (
+                  <tr key={user._id} className="hover:bg-gray-700/30 transition-colors">
+                    <td className="px-4 py-3 text-xs break-all text-gray-300">{user._id}</td>
+                    <td className="px-4 py-3 text-xs text-gray-300">{user.nombre || '-'}</td>
+                    <td className="px-4 py-3 text-xs text-gray-300">{user.email}</td>
+                    <td className="px-4 py-3 text-xs">
+                      <select
+                        className="bg-gray-900 border border-gray-700 rounded-lg px-2 py-1 text-xs text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                        value={user.role || (user as any).rol}
+                        onChange={e => {
+                          if (confirm(`¿Seguro que deseas cambiar el rol de este usuario a '${e.target.value}'?`)) {
+                            handleChangeRole(user._id, e.target.value);
+                          }
+                        }}
+                        disabled={actionLoading === user._id}
+                      >
+                        <option value="user">Usuario</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    </td>
+                    <td className="px-4 py-3 text-xs">
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${user.activo === false ? 'bg-gray-800 text-gray-400' : 'bg-green-900/50 text-green-300'}`}>
+                        {user.activo === false ? 'No' : 'Sí'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-xs space-x-2">
+                      <button 
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${user.activo === false ? 'bg-amber-600 text-white hover:bg-amber-700' : 'bg-amber-600 text-white hover:bg-amber-700'}`} 
+                        onClick={() => handleToggleActive(user._id)} 
+                        disabled={actionLoading === user._id}
+                      >
+                        {actionLoading === user._id ? '...' : user.activo === false ? 'Activar' : 'Desactivar'}
+                      </button>
+                      <button 
+                        className="bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 hover:bg-red-700" 
+                        onClick={() => handleDelete(user._id)} 
+                        disabled={actionLoading === user._id}
+                      >
+                        {actionLoading === user._id ? '...' : 'Eliminar'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        {actionError && (
+          <div className="bg-red-900/50 border border-red-700 backdrop-blur rounded-lg p-4 text-red-200 mt-4">
+            {actionError}
+          </div>
+        )}
+        
+        {filteredUsers.length === 0 && !loading && (
+          <div className="bg-gray-800/50 border border-gray-700 backdrop-blur rounded-lg p-6 text-center text-gray-400">
+            No se encontraron usuarios que coincidan con tu búsqueda.
+          </div>
+        )}
       </div>
-      <div className="overflow-x-auto rounded-lg shadow-lg bg-white">
-        <table className="min-w-full border border-gray-200">
-          <thead className="bg-gradient-to-r from-purple-400 to-violet-500 text-white">
-            <tr>
-              <th className="border border-gray-200 px-3 py-2 text-left">ID</th>
-              <th className="border border-gray-200 px-3 py-2 text-left">Nombre</th>
-              <th className="border border-gray-200 px-3 py-2 text-left">Email</th>
-              <th className="border border-gray-200 px-3 py-2 text-left">Rol</th>
-              <th className="border border-gray-200 px-3 py-2 text-left">Activo</th>
-              <th className="border border-gray-200 px-3 py-2 text-left">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white">
-            {filteredUsers.map((user, idx) => (
-              <tr key={user._id} className={idx % 2 === 0 ? "bg-gray-50" : ""}>
-                <td className="border border-gray-200 px-3 py-2 text-xs break-all">{user._id}</td>
-                <td className="border border-gray-200 px-3 py-2 text-xs">{user.nombre || '-'}</td>
-                <td className="border border-gray-200 px-3 py-2 text-xs">{user.email}</td>
-                <td className="border border-gray-200 px-3 py-2 text-xs">
-                  <select
-                    className="border rounded px-2 py-1 text-xs bg-white"
-                    value={user.role || (user as any).rol}
-                    onChange={e => {
-                      if (confirm(`¿Seguro que deseas cambiar el rol de este usuario a '${e.target.value}'?`)) {
-                        handleChangeRole(user._id, e.target.value);
-                      }
-                    }}
-                    disabled={actionLoading === user._id}
-                  >
-                    <option value="user">Usuario</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </td>
-                <td className="border border-gray-200 px-3 py-2 text-xs">
-                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${user.activo === false ? 'bg-gray-200 text-gray-700' : 'bg-green-100 text-green-700'}`}>{user.activo === false ? 'No' : 'Sí'}</span>
-                </td>
-                <td className="border border-gray-200 px-3 py-2 text-xs space-x-2">
-                  <button className="btn-primary text-white px-2 py-1 rounded text-xs" onClick={() => handleToggleActive(user._id)} disabled={actionLoading === user._id}>
-                    {user.activo === false ? 'Activar' : 'Desactivar'}
-                  </button>
-                  <button className="btn-secondary text-white px-2 py-1 rounded text-xs" onClick={() => handleDelete(user._id)} disabled={actionLoading === user._id}>
-                    Eliminar
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {actionError && <p className="text-red-500 mt-2">{actionError}</p>}
     </div>
   );
 }

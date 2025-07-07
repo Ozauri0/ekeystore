@@ -12,16 +12,23 @@ export default function AdminNav() {
     { href: "/admin/licencias", label: "Licencias" },
   ];
   return (
-    <nav className="flex gap-4 mb-8 border-b pb-2 bg-white rounded-t-lg px-2">
-      {links.map((link) => (
-        <Link
-          key={link.href}
-          href={link.href}
-          className={`px-3 py-1 rounded font-semibold transition-colors duration-200 ${pathname === link.href ? "bg-gradient-to-r from-purple-400 to-violet-500 text-white" : "text-gray-700 hover:bg-gray-100"}`}
-        >
-          {link.label}
-        </Link>
-      ))}
+    <nav className="bg-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-xl mb-6 p-1">
+      <ul className="flex flex-wrap gap-1">
+        {links.map((link) => (
+          <li key={link.href}>
+            <Link
+              href={link.href}
+              className={`inline-block px-4 py-2 rounded-lg transition-colors ${
+                pathname === link.href
+                  ? "bg-gradient-to-r from-purple-600 to-violet-600 text-white hover:from-purple-700 hover:to-violet-700"
+                  : "text-gray-200 hover:bg-gray-700 hover:text-white"
+              }`}
+            >
+              {link.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </nav>
   );
 }

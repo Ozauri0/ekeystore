@@ -1,6 +1,7 @@
 "use client";
 import AdminNav from "../AdminNav";
 import { useEffect, useState } from "react";
+import "../admin.css"; // Importamos los estilos de administración
 
 // Ajusta los campos según tu modelo de orden
 interface Orden {
@@ -68,83 +69,173 @@ export default function OrdenesPage() {
       orden.user?.nombre?.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Función para determinar el color de estado
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'completada':
+      case 'completed':
+      case 'entregada':
+        return 'bg-green-900/50 text-green-300';
+      case 'pendiente':
+      case 'pending':
+        return 'bg-amber-900/50 text-amber-300';
+      case 'cancelada':
+      case 'cancelled':
+        return 'bg-red-900/50 text-red-300';
+      default:
+        return 'bg-gray-800 text-gray-300';
+    }
+  };
+
   return (
-    <div className="max-w-6xl mx-auto p-4">
-      <AdminNav />
-      <h1 className="text-3xl font-bold mb-6 gradient-text">Gestión de Órdenes</h1>
-      {loading && <p className="text-gray-700">Cargando órdenes...</p>}
-      {error && <p className="text-red-500 font-semibold">{error}</p>}
-      {!loading && !error && (
-        <div className="overflow-x-auto rounded-lg shadow-lg bg-white">
-          <div className="mb-4 flex justify-end">
-            <input
-              type="text"
-              placeholder="Buscar por usuario, email o ID..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="border px-3 py-2 rounded w-full max-w-xs"
-            />
+    <div className="bg-gray-950 text-white min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <AdminNav />
+        
+        <div className="mb-8 mt-6">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-purple-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
+              Gestión de Órdenes
+            </span>
+          </h1>
+          <p className="text-gray-400">Administra los pedidos de tu tienda</p>
+        </div>
+
+        {loading && (
+          <div className="bg-gray-800/50 border border-gray-700 backdrop-blur rounded-lg p-4 text-gray-300">
+            Cargando órdenes...
           </div>
-          <table className="min-w-full border border-gray-200">
-            <thead className="bg-gradient-to-r from-purple-400 to-violet-500 text-white">
-              <tr>
-                <th className="border border-gray-200 px-3 py-2 text-left">ID</th>
-                <th className="border border-gray-200 px-3 py-2 text-left">Usuario</th>
-                <th className="border border-gray-200 px-3 py-2 text-left">Estado</th>
-                <th className="border border-gray-200 px-3 py-2 text-left">Total</th>
-                <th className="border border-gray-200 px-3 py-2 text-left">Fecha</th>
-                <th className="border border-gray-200 px-3 py-2 text-left">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white">
-              {filteredOrdenes.map((orden, idx) => {
-                let usuario = "-";
-                if (orden.user) {
-                  usuario = orden.user.email || orden.user.nombre || orden.user._id || "-";
-                }
-                return (
-                  <tr key={orden._id} className={idx % 2 === 0 ? "bg-gray-50" : ""}>
-                    <td className="border border-gray-200 px-3 py-2 text-xs break-all">{orden._id}</td>
-                    <td className="border border-gray-200 px-3 py-2 text-xs">{usuario}</td>
-                    <td className="border border-gray-200 px-3 py-2 text-xs">
-                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${orden.status === 'completada' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'}`}>{orden.status}</span>
-                    </td>
-                    <td className="border border-gray-200 px-3 py-2 text-xs">${orden.costo_total}</td>
-                    <td className="border border-gray-200 px-3 py-2 text-xs">{new Date(orden.orden_fecha || orden.createdAt).toLocaleString()}</td>
-                    <td className="border border-gray-200 px-3 py-2 text-xs">
-                      <button
-                        className="btn-primary text-white px-2 py-1 rounded text-xs mr-2"
-                        onClick={() => setSelectedOrden(orden)}
-                      >
-                        Ver
-                      </button>
-                    </td>
+        )}
+        
+        {error && (
+          <div className="bg-red-900/50 border border-red-700 backdrop-blur rounded-lg p-4 text-red-200 mb-4">
+            {error}
+          </div>
+        )}
+        
+        {!loading && !error && (
+          <div className="bg-gray-800/50 border border-gray-700 backdrop-blur rounded-lg ring-1 ring-purple-500/50 p-6 mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-white">Lista de Órdenes</h2>
+              <input
+                type="text"
+                placeholder="Buscar por usuario, email o ID..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="bg-gray-900/70 border border-gray-700 text-gray-200 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/50 w-full max-w-xs"
+              />
+            </div>
+            
+            <div className="overflow-x-auto rounded-lg">
+              <table className="min-w-full">
+                <thead className="bg-gradient-to-r from-purple-600 to-violet-600 text-white">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">ID</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Usuario</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Estado</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Total</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Fecha</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider">Acciones</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-      {selectedOrden && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg min-w-[320px] max-w-lg relative">
-            <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-black text-xl"
-              onClick={() => setSelectedOrden(null)}
-            >
-              &times;
-            </button>
-            <h2 className="text-xl font-bold mb-2">Detalle de Orden</h2>
-            <div className="mb-2"><b>ID:</b> {selectedOrden._id}</div>
-            <div className="mb-2"><b>Usuario:</b> {selectedOrden.user?.email || selectedOrden.user?.nombre || "-"}</div>
-            <div className="mb-2"><b>Estado:</b> {selectedOrden.status}</div>
-            <div className="mb-2"><b>Total:</b> ${selectedOrden.costo_total}</div>
-            <div className="mb-2"><b>Fecha:</b> {new Date(selectedOrden.orden_fecha || selectedOrden.createdAt).toLocaleString()}</div>
-            {/* Agrega aquí más detalles según tu modelo, como productos, dirección, etc. */}
+                </thead>
+                <tbody className="divide-y divide-gray-700">
+                  {filteredOrdenes.map((orden) => {
+                    let usuario = "-";
+                    if (orden.user) {
+                      usuario = orden.user.email || orden.user.nombre || orden.user._id || "-";
+                    }
+                    return (
+                      <tr key={orden._id} className="hover:bg-gray-700/30 transition-colors">
+                        <td className="px-4 py-3 text-xs break-all text-gray-300">{orden._id}</td>
+                        <td className="px-4 py-3 text-xs text-gray-300">{usuario}</td>
+                        <td className="px-4 py-3 text-xs">
+                          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(orden.status)}`}>
+                            {orden.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-xs text-gray-300">${orden.costo_total}</td>
+                        <td className="px-4 py-3 text-xs text-gray-300">{new Date(orden.orden_fecha || orden.createdAt).toLocaleString()}</td>
+                        <td className="px-4 py-3 text-xs">
+                          <button
+                            className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 hover:bg-blue-700"
+                            onClick={() => setSelectedOrden(orden)}
+                          >
+                            Ver detalles
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+        
+        {!loading && !error && filteredOrdenes.length === 0 && (
+          <div className="bg-gray-800/50 border border-gray-700 backdrop-blur rounded-lg p-6 text-center text-gray-400">
+            No se encontraron órdenes que coincidan con tu búsqueda.
+          </div>
+        )}
+        
+        {selectedOrden && (
+          <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 px-4">
+            <div className="bg-gray-800/90 backdrop-blur-lg border border-gray-700 p-6 rounded-lg shadow-lg max-w-lg w-full relative ring-1 ring-purple-500/50">
+              <button
+                className="absolute top-2 right-3 text-gray-400 hover:text-white text-xl"
+                onClick={() => setSelectedOrden(null)}
+              >
+                &times;
+              </button>
+              <h2 className="text-xl font-bold mb-4 bg-gradient-to-r from-purple-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
+                Detalle de Orden
+              </h2>
+              
+              <div className="space-y-3 text-gray-300">
+                <div className="grid grid-cols-3 gap-2 pb-2 border-b border-gray-700">
+                  <div className="font-medium text-gray-400">ID:</div>
+                  <div className="col-span-2 break-all">{selectedOrden._id}</div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2 pb-2 border-b border-gray-700">
+                  <div className="font-medium text-gray-400">Usuario:</div>
+                  <div className="col-span-2">{selectedOrden.user?.email || selectedOrden.user?.nombre || "-"}</div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2 pb-2 border-b border-gray-700">
+                  <div className="font-medium text-gray-400">Estado:</div>
+                  <div className="col-span-2">
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(selectedOrden.status)}`}>
+                      {selectedOrden.status}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2 pb-2 border-b border-gray-700">
+                  <div className="font-medium text-gray-400">Total:</div>
+                  <div className="col-span-2">${selectedOrden.costo_total}</div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-2 pb-2 border-b border-gray-700">
+                  <div className="font-medium text-gray-400">Fecha:</div>
+                  <div className="col-span-2">{new Date(selectedOrden.orden_fecha || selectedOrden.createdAt).toLocaleString()}</div>
+                </div>
+                
+                {/* Agrega aquí más detalles según tu modelo, como productos, dirección, etc. */}
+              </div>
+              
+              <div className="mt-6 flex justify-end">
+                <button
+                  className="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+                  onClick={() => setSelectedOrden(null)}
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
