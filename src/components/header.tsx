@@ -168,11 +168,11 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex space-x-8">
-              <Link href="/" className="text-gray-300 hover:text-purple-400 transition-colors font-medium">Inicio</Link>
-              <a href="#" className="text-gray-300 hover:text-purple-400 transition-colors font-medium">Windows</a>
-              <a href="#" className="text-gray-300 hover:text-purple-400 transition-colors font-medium">Office</a>
-              <a href="#" className="text-gray-300 hover:text-purple-400 transition-colors font-medium">Games</a>
-              <a href="#" className="text-gray-300 hover:text-purple-400 transition-colors font-medium">Antivirus</a>
+              <Link href="/" className="text-gray-300 hover:text-purple-400 transition-colors font-medium" onClick={() => window.dispatchEvent(new CustomEvent('filter-category', { detail: null }))}>Inicio</Link>
+              <button onClick={() => window.dispatchEvent(new CustomEvent('filter-category', { detail: 'Windows' }))} className="text-gray-300 hover:text-purple-400 transition-colors font-medium bg-transparent border-0 cursor-pointer">Windows</button>
+              <button onClick={() => window.dispatchEvent(new CustomEvent('filter-category', { detail: 'Office' }))} className="text-gray-300 hover:text-purple-400 transition-colors font-medium bg-transparent border-0 cursor-pointer">Office</button>
+              <button onClick={() => window.dispatchEvent(new CustomEvent('filter-category', { detail: 'Juegos' }))} className="text-gray-300 hover:text-purple-400 transition-colors font-medium bg-transparent border-0 cursor-pointer">Juegos</button>
+              <button onClick={() => window.dispatchEvent(new CustomEvent('filter-category', { detail: 'Antivirus' }))} className="text-gray-300 hover:text-purple-400 transition-colors font-medium bg-transparent border-0 cursor-pointer">Antivirus</button>
             </nav>
 
             {/* Right side buttons */}
@@ -259,8 +259,8 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
                           Hola, {userName}
                         </div>
                         
-                        <a 
-                          href="#" 
+                        <Link 
+                          href="/perfil" 
                           className="block px-4 py-2 text-gray-300 hover:bg-purple-600/20 hover:text-purple-300 transition-colors"
                           onClick={handleDropdownClick}
                         >
@@ -270,9 +270,9 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
                             </svg>
                             <span>Mi Perfil</span>
                           </div>
-                        </a>
-                        <a 
-                          href="#" 
+                        </Link>
+                        <Link 
+                          href="/mis-pedidos" 
                           className="block px-4 py-2 text-gray-300 hover:bg-purple-600/20 hover:text-purple-300 transition-colors"
                           onClick={handleDropdownClick}
                         >
@@ -282,7 +282,7 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
                             </svg>
                             <span>Mis Pedidos</span>
                           </div>
-                        </a>
+                        </Link>
                         
                         {/* Panel de Administrador - Solo visible para admins */}
                         {userRole === "admin" && (
@@ -384,11 +384,11 @@ export default function Header({ cartCount = 0, onCartCountChange }: HeaderProps
 
             {/* Mobile Navigation */}
             <nav className="space-y-3">
-              <Link href="/" className="block text-gray-300 hover:text-purple-400 transition-colors font-medium py-2 border-b border-gray-800">Inicio</Link>
-              <a href="#" className="block text-gray-300 hover:text-purple-400 transition-colors font-medium py-2 border-b border-gray-800">Windows</a>
-              <a href="#" className="block text-gray-300 hover:text-purple-400 transition-colors font-medium py-2 border-b border-gray-800">Office</a>
-              <a href="#" className="block text-gray-300 hover:text-purple-400 transition-colors font-medium py-2 border-b border-gray-800">Games</a>
-              <a href="#" className="block text-gray-300 hover:text-purple-400 transition-colors font-medium py-2">Antivirus</a>
+              <Link href="/" className="block text-gray-300 hover:text-purple-400 transition-colors font-medium py-2 border-b border-gray-800" onClick={() => window.dispatchEvent(new CustomEvent('filter-category', { detail: null }))}>Inicio</Link>
+              <button onClick={() => window.dispatchEvent(new CustomEvent('filter-category', { detail: 'Windows' }))} className="block text-gray-300 hover:text-purple-400 transition-colors font-medium py-2 border-b border-gray-800 w-full text-left bg-transparent border-0 cursor-pointer">Windows</button>
+              <button onClick={() => window.dispatchEvent(new CustomEvent('filter-category', { detail: 'Office' }))} className="block text-gray-300 hover:text-purple-400 transition-colors font-medium py-2 border-b border-gray-800 w-full text-left bg-transparent border-0 cursor-pointer">Office</button>
+              <button onClick={() => window.dispatchEvent(new CustomEvent('filter-category', { detail: 'Juegos' }))} className="block text-gray-300 hover:text-purple-400 transition-colors font-medium py-2 border-b border-gray-800 w-full text-left bg-transparent border-0 cursor-pointer">Juegos</button>
+              <button onClick={() => window.dispatchEvent(new CustomEvent('filter-category', { detail: 'Antivirus' }))} className="block text-gray-300 hover:text-purple-400 transition-colors font-medium py-2 w-full text-left bg-transparent border-0 cursor-pointer">Antivirus</button>
             </nav>
           </div>
         </div>

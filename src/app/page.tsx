@@ -30,6 +30,7 @@ interface Product {
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   // Usar el contexto del carrito
   const { addToCart, itemCount } = useCart();
 
@@ -76,6 +77,20 @@ export default function Home() {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  // Escuchar evento global para filtro de categoría
+  useEffect(() => {
+    const handler = (e: CustomEvent) => {
+      setCategoryFilter(e.detail);
+    };
+    window.addEventListener('filter-category', handler as EventListener);
+    return () => window.removeEventListener('filter-category', handler as EventListener);
+  }, []);
+
+  // Productos filtrados por categoría
+  const filteredProducts = categoryFilter
+    ? products.filter(p => p.categoria && p.categoria.toLowerCase().includes(categoryFilter.toLowerCase()))
+    : products;
 
   // Función para manejar agregar al carrito
   const handleAddToCart = async (product: Product, e: React.MouseEvent<HTMLButtonElement>) => {
@@ -130,12 +145,12 @@ export default function Home() {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
                 <span className="ml-4 text-white text-lg">Cargando productos...</span>
               </div>
-            ) : products.length === 0 ? (
+            ) : filteredProducts.length === 0 ? (
               <div className="col-span-full text-center py-20">
-                <p className="text-gray-400 text-lg">No hay productos disponibles</p>
+                <p className="text-gray-400 text-lg">No hay productos disponibles para esta categoría</p>
               </div>
             ) : (
-              products.map((product) => {
+              filteredProducts.map((product) => {
                 const imgSrc = cleanImageSrc(product.imagen && !product.imagen.startsWith('http') ? `/uploads/${product.imagen}` : product.imagen);
                 return (
                   <div key={product._id} className="bg-gray-800/50 border border-gray-700 hover:bg-gray-800 transition-all duration-300 backdrop-blur group rounded-lg ring-1 ring-purple-500/50 card-hover">

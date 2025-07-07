@@ -316,13 +316,21 @@ export default function ProductosPage() {
                 
                 <div>
                   <label className="block text-gray-300 mb-1">Categoría</label>
-                  <input 
-                    name="categoria" 
-                    value={form.categoria || ""} 
-                    onChange={handleFormChange} 
-                    className="bg-gray-900/70 border border-gray-700 text-gray-200 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/50 w-full" 
-                    required 
-                  />
+                  <select
+                    name="categoria"
+                    value={form.categoria || ""}
+                    onChange={handleFormChange}
+                    className="bg-gray-900/70 border border-gray-700 text-gray-200 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/50 w-full"
+                    required
+                  >
+                    <option value="">Selecciona una categoría</option>
+                    <option value="Windows">Windows</option>
+                    <option value="Office">Office</option>
+                    <option value="Juegos">Juegos</option>
+                    <option value="Antivirus">Antivirus</option>
+                    <option value="Adobe">Adobe</option>
+                    <option value="VPN">VPN</option>
+                  </select>
                 </div>
                 
                 <div>
