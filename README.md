@@ -2,7 +2,7 @@
 
 EKeyStore es una plataforma completa para la venta de licencias de software, desarrollada con Next.js (Frontend) y Express.js (Backend API).
 
-![EKeyStore Logo](public/file.svg)
+![E-KeyStore Logo](public/screen.png)
 
 ## 📋 Descripción
 
