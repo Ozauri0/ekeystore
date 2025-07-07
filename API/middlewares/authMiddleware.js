@@ -12,7 +12,11 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = { userId: decoded.userId, role: decoded.role };
+    // Asegurar que la clave del rol sea consistente
+    req.user = { 
+      userId: decoded.userId, 
+      role: decoded.role || decoded.rol  // Aceptar ambas claves
+    };
     next();
   } catch (err) {
     res.status(401).json({ message: 'Token inválido o expirado' });

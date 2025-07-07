@@ -1,7 +1,29 @@
 "use client";
 import AdminNav from "./AdminNav";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function AdminPage() {
+  const { isLoggedIn, isAdmin } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      router.push('/login');
+      return;
+    }
+    
+    if (!isAdmin) {
+      router.push('/');
+      return;
+    }
+  }, [isLoggedIn, isAdmin, router]);
+
+  // Si no está autenticado o no es admin, no renderizar nada
+  if (!isLoggedIn || !isAdmin) {
+    return null;
+  }
   return (
     <div className="max-w-6xl mx-auto p-6">
       <AdminNav />

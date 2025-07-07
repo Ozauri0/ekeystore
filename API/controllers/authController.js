@@ -43,3 +43,30 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: 'Error al iniciar sesión', error: err.message });
   }
 };
+
+// Verificar si un usuario es administrador
+exports.verifyAdmin = async (req, res) => {
+  try {
+    // El middleware de autenticación ya verifica el token y lo decodifica
+    // Verificamos si el rol es 'admin', usando req.user.role que proviene del middleware
+    if (!req.user) {
+      return res.status(401).json({ message: 'Usuario no autenticado' });
+    }
+    
+    // Verificar en la base de datos que el usuario realmente tenga rol de admin
+    const user = await User.findById(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+    
+    if (user.rol === 'admin') {
+      return res.status(200).json({ isAdmin: true });
+    }
+    
+    return res.status(403).json({ message: 'Acceso denegado' });
+  } catch (err) {
+    console.error('Error en verifyAdmin:', err);
+    res.status(500).json({ message: 'Error al verificar permisos', error: err.message });
+  }
+};

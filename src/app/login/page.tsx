@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const { login, isAdmin } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -34,11 +36,11 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // Guardar token en localStorage
-        localStorage.setItem("token", data.token);
+        // Guardar token en localStorage y actualizar el contexto de autenticación
+        login(data.token);
         
-        // Redirigir a la página principal
-        router.push("/");
+        // Siempre redirigir a la página principal (tienda)
+        router.push('/');
       } else {
         setError(data.message || "Error al iniciar sesión");
       }

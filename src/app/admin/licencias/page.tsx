@@ -1,6 +1,7 @@
 "use client";
 import AdminNav from "../AdminNav";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import "../admin.css"; // Importamos los estilos de administración
 
 interface Licencia {
@@ -17,10 +18,19 @@ export default function LicenciasPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
+    // Verificar autenticación y rol al cargar el componente
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    
     fetchLicencias();
-  }, []);
+  }, [router]);
 
   const fetchLicencias = async () => {
     try {

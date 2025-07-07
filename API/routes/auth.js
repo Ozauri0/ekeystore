@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { register, login } = require('../controllers/authController');
+const { register, login, verifyAdmin } = require('../controllers/authController');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 /**
  * @swagger
@@ -58,5 +59,21 @@ router.post('/register', register);
  *         description: Inicio de sesión exitoso
  */
 router.post('/login', login);
+
+/**
+ * @swagger
+ * /api/auth/verify-admin:
+ *   get:
+ *     summary: Verificar si un usuario es administrador
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Usuario autenticado es administrador
+ *       403:
+ *         description: Usuario no es administrador
+ */
+router.get('/verify-admin', authMiddleware, verifyAdmin);
 
 module.exports = router;

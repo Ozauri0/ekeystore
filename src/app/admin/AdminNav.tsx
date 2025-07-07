@@ -1,9 +1,56 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function AdminNav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Verificar si el usuario es administrador
+    async function checkAdmin() {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          router.push("/login");
+          return;
+        }
+
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/verify-admin`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          // Si no es admin, redirigir a la página principal
+          router.push("/");
+          return;
+        }
+
+        setIsAdmin(true);
+      } catch (error) {
+        console.error("Error verificando permisos de administrador:", error);
+        router.push("/");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    checkAdmin();
+  }, [router]);
+
+  // Si está cargando o no es admin, no mostrar el componente
+  if (loading || !isAdmin) {
+    return null;
+  }
+
   const links = [
     { href: "/admin/dashboard", label: "Dashboard" },
     { href: "/admin/usuarios", label: "Usuarios" },
