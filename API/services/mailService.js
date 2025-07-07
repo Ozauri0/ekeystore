@@ -11,10 +11,12 @@ exports.sendPurchaseEmail = async ({ to, orderId, licenses }) => {
     <p>Si tienes problemas, contáctanos.</p>
   `;
 
+  console.log('Enviando correo a:', to, 'con licencias:', licenses);
   await transporter.sendMail({
     from: '"E-Key Store" <no-reply@ekey.com>',
     to,
     subject: 'Tus claves de activación',
     html,
   });
+  console.log('Correo enviado (o intentado) a:', to);
 };

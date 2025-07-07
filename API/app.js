@@ -31,17 +31,18 @@ const swaggerSpec = swaggerJsdoc({
   apis: ['./routes/*.js'],
 });
 
-
-
 // Conectar a la base de datos
 connectDB();
+
+// Montar el webhook ANTES de los middlewares globales
+app.use('/api/stripe/webhook', require('express').raw({ type: 'application/json' }), stripeRoutes);
 
 // Middlewares globales
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Rutas API
+// Rutas API (sin el webhook, para evitar conflicto)
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/auth', authRoutes);
@@ -49,7 +50,7 @@ app.use('/api/keys', keyRoutes);
 app.use('/api/products', productRoutes);
 app.use('/uploads', express.static('uploads'));
 app.use('/api/cart', cartRoutes);
-app.use('/api/stripe', stripeRoutes);
+app.use('/api/stripe', stripeRoutes); // El resto de rutas de stripe (checkout, etc)
 
 // Documentación Swagger
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

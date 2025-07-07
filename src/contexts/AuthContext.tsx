@@ -5,6 +5,7 @@ interface AuthContextType {
   isLoggedIn: boolean;
   userRole: string | null;
   userId: string | null;
+  userEmail: string | null; // Nuevo campo para el email
   login: (token: string) => void;
   logout: () => void;
   isAdmin: boolean;
@@ -16,6 +17,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null); // Nuevo estado
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -25,12 +27,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         // También establecer cookie para el middleware
         document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24 * 7}`;
-        
         // Decodificar el token para obtener la información
         const payload = JSON.parse(atob(token.split(".")[1]));
         setIsLoggedIn(true);
         setUserRole(payload.role || payload.rol); // Considerar ambos campos
         setUserId(payload.userId);
+        setUserEmail(payload.email || payload.correo || null); // Extraer email
         setIsAdmin((payload.role === "admin") || (payload.rol === "admin"));
       } catch (error) {
         console.error("Error al decodificar token:", error);
@@ -64,15 +66,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (token: string) => {
     // Guardar el token en localStorage
     localStorage.setItem("token", token);
-    
     // También guardar en cookies para que el middleware pueda acceder
     document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24 * 7}`; // 7 días
-    
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
       setIsLoggedIn(true);
       setUserRole(payload.role);
       setUserId(payload.userId);
+      setUserEmail(payload.email || payload.correo || null); // Extraer email
       setIsAdmin(payload.role === "admin");
     } catch (error) {
       console.error("Error al decodificar token:", error);
@@ -86,11 +87,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoggedIn(false);
     setUserRole(null);
     setUserId(null);
+    setUserEmail(null); // Limpiar email
     setIsAdmin(false);
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, userRole, userId, login, logout, isAdmin }}>
+    <AuthContext.Provider value={{ isLoggedIn, userRole, userId, userEmail, login, logout, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );

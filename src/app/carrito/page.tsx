@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Header from "../../components/header";
 import Footer from "../../components/footer";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Product {
   _id: string;
@@ -21,11 +22,13 @@ interface Product {
 
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart, clearCart, itemCount, total: cartTotal } = useCart();
+  const { isLoggedIn, userId, userEmail } = useAuth();
   const [products, setProducts] = useState<{ [key: string]: Product }>({});
   const [loading, setLoading] = useState(true);
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [discountMessage, setDiscountMessage] = useState("");
+  const [actionLoading, setActionLoading] = useState<null | 'stripe'>(null);
 
   // Cargar información de productos
   useEffect(() => {    const fetchProducts = async () => {
@@ -275,7 +278,57 @@ export default function CartPage() {
                 )}
 
                 {/* Checkout Button */}
-                <button className="w-full btn-primary text-white py-3 rounded-xl font-semibold mb-4">
+                <button
+                  className="w-full btn-primary text-white py-3 rounded-xl font-semibold mb-4 flex items-center justify-center gap-2"
+                  onClick={async () => {
+                    setActionLoading('stripe');
+                    try {
+                      // Construir cartItems con los datos que espera el backend
+                      const cartItems = cart.map(item => {
+                        const product = products[item.productId];
+                        return {
+                          nombre: product?.nombre || '',
+                          precio: product?.precio || 0,
+                          cantidad: item.quantity
+                        };
+                      });
+                      // Obtener email del usuario autenticado desde el contexto
+                      let buyerEmail = userEmail;
+                      if (!buyerEmail) {
+                        alert('Debes iniciar sesión para realizar el pago.');
+                        setActionLoading(null);
+                        return;
+                      }
+                      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/stripe/create-checkout-session`, {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          cartItems,
+                          buyerEmail
+                        })
+                      });
+                      const data = await res.json();
+                      if (data.url) {
+                        window.location.href = data.url;
+                      } else {
+                        alert('No se pudo iniciar el pago.');
+                      }
+                    } catch (err) {
+                      alert('Error al conectar con Stripe.');
+                    } finally {
+                      setActionLoading(null);
+                    }
+                  }}
+                  disabled={cart.length === 0 || actionLoading === 'stripe'}
+                >
+                  {actionLoading === 'stripe' && (
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                    </svg>
+                  )}
                   Proceder al pago
                 </button>
 
