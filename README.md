@@ -1,36 +1,144 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🔑 EKeyStore
 
-## Getting Started
+EKeyStore es una plataforma completa para la venta de licencias de software, desarrollada con Next.js (Frontend) y Express.js (Backend API).
 
-First, run the development server:
+![EKeyStore Logo](public/file.svg)
+
+## 📋 Descripción
+
+EKeyStore permite a los usuarios buscar, comprar y gestionar licencias de software. Incluye un panel de administración completo para gestionar productos, usuarios, licencias y órdenes.
+
+### Características principales
+
+- 🛒 Carrito de compras
+- 🔐 Sistema de autenticación y autorización
+- 👤 Perfiles de usuario
+- 📊 Panel de administración
+- 💳 Procesamiento de pagos
+- 📧 Notificaciones por email
+- 🌐 API RESTful
+## 🚀 Configuración del proyecto
+
+### Prerrequisitos
+
+- Node.js (v18 o superior)
+- npm o yarn
+- MongoDB (local o en la nube)
+
+### Variables de entorno
+
+Crea un archivo `.env` en la raíz del proyecto frontend:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+NEXT_PUBLIC_API_URL=http://localhost:3001/api
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Instalación
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Frontend (Next.js)**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Instalar dependencias
+npm install
 
-## Learn More
+# Iniciar servidor de desarrollo
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Backend (API Express)**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# Navegar al directorio de la API
+cd API
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Instalar dependencias
+npm install
 
-## Deploy on Vercel
+# Iniciar servidor de desarrollo
+npm run dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🏗️ Estructura del proyecto
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+/
+├── API/                  # Backend API (Express.js)
+│   ├── config/           # Configuración (DB, email, etc.)
+│   ├── controllers/      # Controladores
+│   ├── middlewares/      # Middlewares
+│   ├── models/           # Modelos de datos
+│   ├── routes/           # Rutas API
+│   ├── scripts/          # Scripts útiles
+│   ├── services/         # Servicios
+│   └── server.js         # Punto de entrada
+│
+├── public/               # Archivos estáticos
+│
+└── src/                  # Frontend (Next.js)
+    ├── app/              # Páginas y rutas
+    │   ├── admin/        # Panel de administración
+    │   ├── carrito/      # Carrito y checkout
+    │   └── ...
+    ├── components/       # Componentes reutilizables
+    ├── contexts/         # Contextos de React
+    └── services/         # Servicios del cliente
+```
+
+## 💻 Comandos disponibles
+
+### Frontend
+
+```bash
+# Desarrollo
+npm run dev
+
+# Compilar para producción
+npm run build
+
+# Iniciar en modo producción
+npm start
+
+# Ejecutar linter
+npm run lint
+```
+
+### Backend (API)
+
+```bash
+# Desarrollo con hot-reload
+npm run dev
+
+# Iniciar en modo producción
+npm start
+
+# Generar cuenta de administrador
+npm run generate:admin
+
+# Poblar la base de datos con productos de prueba
+npm run seed:products
+```
+
+## 🌐 Despliegue
+
+### Frontend (Next.js)
+
+El frontend puede desplegarse en Vercel o cualquier otro proveedor que soporte Next.js.
+
+### Backend (API)
+
+La API puede desplegarse en servicios como:
+- Heroku
+- Railway
+- DigitalOcean
+- AWS
+
+Asegúrate de configurar las variables de entorno adecuadas en tu entorno de producción.
+
+## ⚙️ Configuración de CORS
+
+Para evitar problemas de CORS al comunicar el frontend con la API, asegúrate de:
+
+1. Configurar correctamente el dominio del frontend en la API
+2. Utilizar variables de entorno para las URLs de la API
+3. Configurar proxies si es necesario
+
